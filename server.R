@@ -30,14 +30,30 @@ my.server <- function(input, output) {
   # Creates reactive function that takes in user input and changes the data to be viewed
   company <- reactive({
     # Combine the two dataframes as a default
-    data <- bind_rows(gsm.marvel, gsm.dc) %>% filter(YEAR != "")
+    data <- bind_rows(gsm.marvel, gsm.dc) %>% filter(YEAR != "") %>% 
+      group_by(YEAR) %>% mutate(NUM = 1:n())
+    
     
     # Based on what the user checkboxes, filter for that data only
-    if(input$company.data == "Marvel") {
-      data <- filter(data, Company == "Marvel")
-    } else {
-      data <- filter(data, Company == "DC")
-    }
+    if(length(input$company.data) == 1) {
+      data <- filter(data, COMPANY == input$company.data)
+    } 
+    return(data)
+  })
+  
+  # Renders histogram plot based on user input
+  output$histogram <- renderPlot({
+    # Calls upon the data from company() to create a histogram
+    histogram <- ggplot(data = company(), aes(x = YEAR, y = NUM, color = SEX)) + 
+      geom_count(size = 5) +
+      ylim(0, 20)
+
+      
+      #, aes(x= YEAR, fill = SEX)) +
+      #stat_bin(geom = "point", mapping = aes(fill = SEX), position = "stack")
+    
+    
+    return(histogram)
   })
 }
 
