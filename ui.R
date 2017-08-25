@@ -11,12 +11,19 @@ my.ui <- fluidPage(
     sidebarPanel(
       checkboxGroupInput('company.data', label = 'View by Publishing Company',
                          choices = c("DC", "MARVEL"), 
-                         selected = c("DC", "MARVEL"))
+                         selected = c("DC", "MARVEL")),
+      radioButtons("feature", label = "Choose",
+                   choices = c("ALIGNMENT (Good/Bad/Neutral)", "GENDER", "GSM (Gender/Sexuality Minority)"), 
+                   selected = c("GENDER"))
     ),
     
-    mainPanel(
+    #div(
+     # style = "position:relative",
       plotOutput("histogram")
-    )
+      #uiOutput("hover_info")
+    #)
+      
+    
   )
 )
 
