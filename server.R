@@ -83,10 +83,13 @@ my.server <- function(input, output) {
       
       # Increase the y axis limit by 1 to avoid squished points
       ylim(1, max(company()$`NUMBER OF CHARACTERS`) + 1) + 
-      scale_color_brewer(palette = "Set1")
+      scale_color_brewer(palette = "Pastel1")
     
     return(histogram)
   })
+  
+
+  
 }
 
 # Creates server 
