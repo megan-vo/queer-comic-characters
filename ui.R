@@ -10,7 +10,8 @@ my.ui <- fluidPage(
   
     
      # style = "position:relative",
-      plotOutput("histogram", hover = hoverOpts(id = "plot_hover", delay = 100, delayType = "debounce")),
+      plotOutput("histogram", width = "100%", height = 180,
+                 hover = hoverOpts(id = "plot_hover", delay = 100, delayType = "debounce")),
       
 
 

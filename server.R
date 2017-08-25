@@ -58,6 +58,7 @@ my.server <- function(input, output) {
     return(data)
   })
   
+  
   # Renders histogram plot based on user input
   output$histogram <- renderPlot({
     # Calls upon the data from company() to create a histogram
@@ -75,37 +76,38 @@ my.server <- function(input, output) {
 
       
       # Keeps the ratio of height:width
-      # coord_fixed(1.2) + coord_fixed() for some reason does not work well with nearPoints()
+      # coord_fixed(1.2) * coord_fixed() for some reason does not work well with nearPoints()
       
       # Add more ticks to x and y axis
       scale_x_continuous(breaks = round(seq(min(company()$YEAR), max(company()$YEAR), by = 3), 1)) +
-      scale_y_continuous(breaks = round(seq(1, max(company()$COUNT), 
-                                            by = 2), 1)) +
       
-      # Increase the y axis limit by 1 to avoid squished points
-      
+      # Prevents the graph scale from getting smaller
+      ylim(1, 13) +
       scale_color_brewer(palette = "Pastel1") 
     
-    
+    # If they want to distinguish between companies, changes shape
     return(histogram)
   })
   
+  # Renders the hover information into a little panel
   output$hist_info <- renderUI({
     data <- company()
     hover <- input$plot_hover
+    
+    # Finds the information from the rows nearest to the hover
     point <- nearPoints(data, coordinfo = hover, xvar = "YEAR", yvar = 
                           "COUNT", threshold = 5, maxpoints = 1, addDist = TRUE)
     style <- paste0("background-color: rgba(255, 255, 255, 0.85); ")
 
+    # Tooltip but not really a tooltip because it's stationary
     wellPanel(
       style = style,
       p(HTML(paste0("<b> Name: ", point$name, "<br/>",
                     "<b> Gender: </b>", point$GENDER, "<br/>",
-                    "<b> Year of First Appearance: </b>", point$YEAR, "<br/>",
+                    "<b> Year of First Appearance: </b>", point$YEAR, "<br/>", #</br> breaks to next line
                     "<b> Current Status: </b>", point$ALIVE, "<br/>",
                     "<b> Alignment: </b>", point$ALIGN, "<br/>",
                     "<b> GSM: </b>", point$GSM, "<br/>",
-                    "<b> COUNT: </b>", point$COUNT, "<br/>",
                     "<b> Publisher: </b>", point$COMPANY, "<br/>")))
     )
   })
