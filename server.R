@@ -50,7 +50,7 @@ my.server <- function(input, output) {
     } 
     # Count the number of characters per year
     data <- data %>% 
-      group_by(YEAR) %>% mutate(`NUMBER OF CHARACTERS` = 1:n()) 
+      group_by(YEAR) %>% mutate(COUNT = 1:n()) 
     
     # For those with no alignment, assigns 'N/A' to row
     data$ALIGN[data$ALIGN == ""] <- "N/A"
@@ -63,32 +63,52 @@ my.server <- function(input, output) {
     # Calls upon the data from company() to create a histogram
     # Based on radio button user input, changes the legend of the plot
     if (input$feature == "ALIGNMENT (Good/Bad/Neutral)") {
-      histogram <- ggplot(data = company(), aes(x = YEAR, y = `NUMBER OF CHARACTERS`, color = ALIGN))
+      histogram <- ggplot(data = company(), aes(color = ALIGN))
     } else if (input$feature == "GENDER") {
-      histogram <- ggplot(data = company(), aes(x = YEAR, y = `NUMBER OF CHARACTERS`, color = GENDER))
+      histogram <- ggplot(data = company(), aes(color = GENDER))
     } else {
-      histogram <- ggplot(data = company(), aes(x = YEAR, y = `NUMBER OF CHARACTERS`, color = GSM))
+      histogram <- ggplot(data = company(), aes(color = GSM))
     }
-    histogram <- histogram + geom_count(size = 5, position = position_dodge(width = 0.1)) +
+    histogram <- histogram + geom_count(aes(x = YEAR, y = COUNT),
+      size = 5, position = position_dodge(width = 0.1)) +
       theme_bw() + 
-      xlim(1940, 2014) +
+
       
       # Keeps the ratio of height:width
-      coord_fixed(1.15) +
+      # coord_fixed(1.2) + coord_fixed() for some reason does not work well with nearPoints()
       
       # Add more ticks to x and y axis
       scale_x_continuous(breaks = round(seq(min(company()$YEAR), max(company()$YEAR), by = 3), 1)) +
-      scale_y_continuous(breaks = round(seq(1, max(company()$`NUMBER OF CHARACTERS`), 
+      scale_y_continuous(breaks = round(seq(1, max(company()$COUNT), 
                                             by = 2), 1)) +
       
       # Increase the y axis limit by 1 to avoid squished points
-      ylim(1, max(company()$`NUMBER OF CHARACTERS`) + 1) + 
-      scale_color_brewer(palette = "Pastel1")
+      
+      scale_color_brewer(palette = "Pastel1") 
+    
     
     return(histogram)
   })
   
+  output$hist_info <- renderUI({
+    data <- company()
+    hover <- input$plot_hover
+    point <- nearPoints(data, coordinfo = hover, xvar = "YEAR", yvar = 
+                          "COUNT", threshold = 5, maxpoints = 1, addDist = TRUE)
+    style <- paste0("background-color: rgba(255, 255, 255, 0.85); ")
 
+    wellPanel(
+      style = style,
+      p(HTML(paste0("<b> Name: ", point$name, "<br/>",
+                    "<b> Gender: </b>", point$GENDER, "<br/>",
+                    "<b> Year of First Appearance: </b>", point$YEAR, "<br/>",
+                    "<b> Current Status: </b>", point$ALIVE, "<br/>",
+                    "<b> Alignment: </b>", point$ALIGN, "<br/>",
+                    "<b> GSM: </b>", point$GSM, "<br/>",
+                    "<b> COUNT: </b>", point$COUNT, "<br/>",
+                    "<b> Publisher: </b>", point$COMPANY, "<br/>")))
+    )
+  })
   
 }
 

@@ -10,7 +10,8 @@ my.ui <- fluidPage(
   
     
      # style = "position:relative",
-      plotlyOutput("histogram"),
+      plotOutput("histogram", hover = hoverOpts(id = "plot_hover", delay = 100, delayType = "debounce")),
+      
 
 
     fluidRow(
@@ -20,9 +21,12 @@ my.ui <- fluidPage(
                                 selected = c("DC", "MARVEL"))
       ),
       column(4,
-             radioButtons("feature", label = "Choose",
+             radioButtons("feature", label = "View by Category",
                           choices = c("ALIGNMENT (Good/Bad/Neutral)", "GENDER", "GSM (Gender/Sexuality Minority)"), 
                           selected = c("GENDER"))
+      ),
+      column(4,
+             uiOutput("hist_info")
       )
   )
 )
