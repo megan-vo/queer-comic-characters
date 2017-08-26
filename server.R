@@ -25,23 +25,9 @@ gsm.dc <- filter(whole.dc, GSM != "") %>%  mutate(COMPANY = "DC")
 colnames(gsm.marvel)[which(names(gsm.marvel) == "SEX")] <- "GENDER"
 colnames(gsm.dc)[which(names(gsm.dc) == "SEX")] <- "GENDER"
 
-# Extracts the top 5 characters that appeared the most times for DC
-dc_10 <- gsm.dc %>% 
-  filter(APPEARANCES != "") 
-dc_10 <- head(arrange(dc_10, desc(APPEARANCES)), 5) # Arranges it from most appearances and decreases downward
-dc_10 <- select(dc_10, name, ALIGN, GENDER, APPEARANCES, YEAR, GSM) %>% 
-  mutate(RANK = 1:n()) # adds the rank of the character based on number of appearances
-dc_10$ALIGN[dc_10$ALIGN == ""] <- "N/A"
-
-
-
-# Extracts the top 5 characters that appeared the most times for MARVEL
-marvel_10 <- gsm.marvel %>% 
-  filter(APPEARANCES != "") 
-marvel_10 <- head(arrange(marvel_10, desc(APPEARANCES)), 5) # Arranges it from most appearances and decreases downward
-marvel_10 <- select(marvel_10, name, ALIGN, GENDER, APPEARANCES, YEAR, GSM) %>% 
-  mutate(RANK = 1:n()) # adds the rank of the character based on number of appearances
-marvel_10$ALIGN[marvel_10$ALIGN == ""] <- "N/A"
+# Extracts the top 10 characters that appeared the most times for DC and MARVEL
+marvel_10 <- read.csv("data/marvel_10.csv", stringsAsFactors = FALSE)
+dc_10 <- read.csv("data/dc_10.csv", stringsAsFactors = FALSE)
 
 
 # Defines server function
@@ -225,16 +211,22 @@ my.server <- function(input, output) {
       name <- data$name
       
       style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
-      
+
       # Tooltip but not really a tooltip because it's stationary
       wellPanel(
         style = style,
-        p(HTML(paste0("<b> #", data$RANK, "</b> <br/>",
+        p(HTML("<img src=", data$PIC, "width=100, height=120> <br/>",
+          paste0("<b> #", data$RANK, "</b> <br/>",
                       "<b> Appearances: </b>", data$APPEARANCES,"<br/>",
                       "<b> Year of First Appearance: </b>", data$YEAR,"<br/>",
                       "<b> Alignment: </b>", data$ALIGN,"<br/>",
                       "<b> Gender: </b>", data$GENDER,"<br/>",
-                      "<b> GSM: </b>", data$GSM,"<br/>")))
+                      "<b> GSM: </b>", data$GSM,"<br/>",
+                      "<h6> Artist(s) - ", data$Artist, "</h6>",
+                      "<h6> Source: ", data$Source, "</h6>",
+                      "<h6> Date of Publishing: ", data$Date, "</h6>",
+                      "<h6> <a href=", data$Wikia, ">Image Wikia Link</a>"
+                 )))
       )
     })
   
