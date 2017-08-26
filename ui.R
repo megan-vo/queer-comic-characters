@@ -58,6 +58,9 @@ my.ui <- fluidPage(
       fluidRow(
         column(6, align = "center",
                uiOutput("marvel_top_info")
+        ),
+        column(6, align = "center",
+               uiOutput("dc_top_info")       
         )
       )
 )

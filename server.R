@@ -6,6 +6,12 @@ library(shinythemes)
 library(plotly)
 library(dplyr)
 
+########
+# Note #
+########
+# Source code for tooltip wellPanel from https://gitlab.com/snippets/16220
+
+
 ###############
 # Data Frames #
 ###############
@@ -205,6 +211,7 @@ my.server <- function(input, output) {
       )
     })
     
+    # Output the character profile of current character being viewed
     output$marvel_top_info <- renderUI({
       data <- marvel_10 %>% 
         filter(RANK == m_rank$rankings$RANKINGS[1]) # match the current m_rankings first element in column with marvel_10 df's RANKING
@@ -222,15 +229,39 @@ my.server <- function(input, output) {
                       "<b> Alignment: </b>", data$ALIGN,"<br/>",
                       "<b> Gender: </b>", data$GENDER,"<br/>",
                       "<b> GSM: </b>", data$GSM,"<br/>",
-                      "<h6> Artist(s) - ", data$Artist, "</h6>",
-                      "<h6> Source: ", data$Source, "</h6>",
-                      "<h6> Date of Publishing: ", data$Date, "</h6>",
-                      "<h6> <a href=", data$Wikia, ">Image Wikia Link</a>"
+                      "<h6> Artist(s) - ", data$Artist, "</h6>", # Image credits
+                      "<h6> Source: ", data$Source, "</h6>", # Image credits
+                      "<h6> Date of Publishing: ", data$Date, "</h6>", # Image credits
+                      "<h6> <a href=", data$Wikia, ">Image Wikia Link</a>" # Image link
                  )))
       )
     })
-  
-  # Source code for tooltip wellPanel from https://gitlab.com/snippets/16220
+    
+    # Output the character profile of current character being viewed
+    output$dc_top_info <- renderUI({
+      data <- dc_10 %>% 
+        filter(RANK == dc_rank$rankings$RANKINGS[1]) # match the current m_rankings first element in column with marvel_10 df's RANKING
+      name <- data$name
+      
+      style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
+      
+      # Tooltip but not really a tooltip because it's stationary
+      wellPanel(
+        style = style,
+        p(HTML("<img src=", data$PIC, "width=120, height=120> <br/>",
+               paste0("<b> #", data$RANK, "</b> <br/>",
+                      "<b> Appearances: </b>", data$APPEARANCES,"<br/>",
+                      "<b> Year of First Appearance: </b>", data$YEAR,"<br/>",
+                      "<b> Alignment: </b>", data$ALIGN,"<br/>",
+                      "<b> Gender: </b>", data$GENDER,"<br/>",
+                      "<b> GSM: </b>", data$GSM,"<br/>",
+                      "<h6> Artist(s) - ", data$Artist, "</h6>", # Image credits
+                      "<h6> Source: ", data$Source, "</h6>", # Image credits
+                      "<h6> Date of Publishing: ", data$Date, "</h6>", # Image credits
+                      "<h6> <a href=", data$Wikia, ">Image Wikia Link</a>" # Image link
+               )))
+      )
+    })
 }
 
 
