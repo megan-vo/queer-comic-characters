@@ -8,13 +8,10 @@ library(dplyr)
 
 my.ui <- fluidPage(  
   
-    
-     # style = "position:relative",
-      plotOutput("histogram", width = "100%", height = 180,
-                 hover = hoverOpts(id = "plot_hover", delay = 100, delayType = "debounce")),
+    # style = "position:relative",
+    plotOutput("histogram", width = "100%", height = 180,
+                hover = hoverOpts(id = "plot_hover", delay = 100, delayType = "debounce")),
       
-
-
     fluidRow(
       column(4,
              checkboxGroupInput('company.data', label = 'View by Publishing Company',
@@ -28,6 +25,14 @@ my.ui <- fluidPage(
       ),
       column(4,
              uiOutput("hist_info")
+      ),
+      fluidRow(
+        column(6,
+               plotOutput("top_marvel")
+        ),
+        column(6,
+               plotOutput("top_dc")       
+        )
       )
   )
 )

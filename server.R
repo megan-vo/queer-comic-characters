@@ -21,6 +21,11 @@ colnames(whole.marvel)[13] <- "YEAR"
 gsm.marvel <- filter(whole.marvel, GSM != "") %>% mutate(COMPANY = "MARVEL")
 gsm.dc <- filter(whole.dc, GSM != "") %>%  mutate(COMPANY = "DC")
 
+# Change the column "SEX" to "GENDER"
+colnames(gsm.marvel)[which(names(gsm.marvel) == "SEX")] <- "GENDER"
+colnames(gsm.dc)[which(names(gsm.dc) == "SEX")] <- "GENDER"
+
+
 # Defines server function
 my.server <- function(input, output) {
   #################
@@ -31,9 +36,6 @@ my.server <- function(input, output) {
   company <- reactive({
     # Combine the two dataframes as a default
     data <- bind_rows(gsm.marvel, gsm.dc) %>% filter(YEAR != "") 
-    
-    # Change the column "SEX" to "GENDER"
-    colnames(data)[which(names(data) == "SEX")] <- "GENDER"
     
     # Arranges data so that color groups stay together
     if(input$feature == "ALIGNMENT (Good/Bad/Neutral)") {
@@ -58,7 +60,6 @@ my.server <- function(input, output) {
     return(data)
   })
   
-  
   # Renders histogram plot based on user input
   output$histogram <- renderPlot({
     # Calls upon the data from company() to create a histogram
@@ -79,7 +80,7 @@ my.server <- function(input, output) {
       # coord_fixed(1.2) * coord_fixed() for some reason does not work well with nearPoints()
       
       # Add more ticks to x and y axis
-      scale_x_continuous(breaks = round(seq(min(company()$YEAR), max(company()$YEAR), by = 3), 1)) +
+      scale_x_continuous(breaks = round(seq(1940, max(company()$YEAR), by = 3), 1)) +
       
       # Prevents the graph scale from getting smaller
       ylim(1, 13) +
@@ -112,7 +113,76 @@ my.server <- function(input, output) {
     )
   })
   
+  ########################
+  # Bar Graph Comparison #
+  ########################
+  
+  # Gives the summary statistics based on what the user is viewing
+  stats_data <- reactive({
+    data <- company()
+    if(length(input$company.data) == 1) {
+      data <- data %>% 
+        filter(input$company.data == COMPANY) %>% 
+        select(COMPANY, input$feature) %>% 
+        group_by(input$feature) %>% 
+        summarize(
+          n = n()
+        )
+    } 
+    
+    return(data)
+  })
+  
+  
+  #############
+  # Pie Chart #
+  #############
+  
+
+  ##########
+  # Top 10 #
+  ##########
+  # Extracts the top 5 characters that appeared the most times for MARVEL
+  marvel_10 <- reactive({
+    data <- gsm.marvel %>% 
+      filter(APPEARANCES != "") 
+    data <- head(arrange(data, desc(APPEARANCES)), 5) # Arranges it from most appearances and decreases downward
+    data <- select(data, name, ALIGN, GENDER, APPEARANCES, YEAR, GSM)
+    data$ALIGN[data$ALIGN == ""] <- "N/A"
+    return(data)
+  })
+  
+  # Extracts the top 5 characters that appeared the most times for DC
+  dc_10 <- reactive({
+    data <- gsm.dc %>% 
+      filter(APPEARANCES != "") 
+    data <- head(arrange(data, desc(APPEARANCES)), 5) # Arranges it from most appearances and decreases downward
+    data <- select(data, name, ALIGN, GENDER, APPEARANCES, YEAR, GSM)
+    data$ALIGN[data$ALIGN == ""] <- "N/A"
+    return(data)
+  })
+  
+  output$top_marvel <- renderPlot(height = 300, {
+    bar <- ggplot(marvel_10(), aes(x = name, y = APPEARANCES, fill = name)) +
+      geom_bar(stat = "identity") +
+      coord_flip() +
+      theme_minimal() +
+      xlab("NAME") +
+      scale_fill_brewer(palette = "Reds", guide = FALSE) # removes legend
+    return(bar)
+  })
+  
+  output$top_dc <- renderPlot(height = 300, {
+    bar <- ggplot(dc_10(), aes(x = name, y = APPEARANCES, fill = name)) +
+      geom_bar(stat = "identity") +
+      coord_flip() +
+      theme_minimal() +
+      xlab("NAME") +
+      scale_fill_brewer(palette = "Blues", guide = FALSE) # removes legend
+    return(bar)
+  })
 }
+
 
 # Creates server 
 shinyServer(my.server)
