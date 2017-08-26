@@ -34,6 +34,16 @@ dc_10 <- select(dc_10, name, ALIGN, GENDER, APPEARANCES, YEAR, GSM) %>%
 dc_10$ALIGN[dc_10$ALIGN == ""] <- "N/A"
 
 
+
+# Extracts the top 5 characters that appeared the most times for MARVEL
+marvel_10 <- gsm.marvel %>% 
+  filter(APPEARANCES != "") 
+marvel_10 <- head(arrange(marvel_10, desc(APPEARANCES)), 5) # Arranges it from most appearances and decreases downward
+marvel_10 <- select(marvel_10, name, ALIGN, GENDER, APPEARANCES, YEAR, GSM) %>% 
+  mutate(RANK = 1:n()) # adds the rank of the character based on number of appearances
+marvel_10$ALIGN[marvel_10$ALIGN == ""] <- "N/A"
+
+write.csv(marvel_10, "data/marvel_10.csv")
 # Defines server function
 my.server <- function(input, output) {
   #################
@@ -112,7 +122,7 @@ my.server <- function(input, output) {
     # Tooltip but not really a tooltip because it's stationary
     wellPanel(
       style = style,
-      p(HTML(paste0("<b> Name: ", point$name, "<br/>",
+      p(HTML(paste0("<b> Name: </b>", point$name, "<br/>",
                     "<b> Gender: </b>", point$GENDER, "<br/>",
                     "<b> Year of First Appearance: </b>", point$YEAR, "<br/>", #</br> breaks to next line
                     "<b> Current Status: </b>", point$ALIVE, "<br/>",
@@ -151,50 +161,24 @@ my.server <- function(input, output) {
   ##########
   # Top 10 #
   ##########
-  # Extracts the top 5 characters that appeared the most times for MARVEL
-  marvel_10 <- reactive({
-    data <- gsm.marvel %>% 
-      filter(APPEARANCES != "") 
-    data <- head(arrange(data, desc(APPEARANCES)), 5) # Arranges it from most appearances and decreases downward
-    data <- select(data, name, ALIGN, GENDER, APPEARANCES, YEAR, GSM)
-    data$ALIGN[data$ALIGN == ""] <- "N/A"
-    return(data)
-  })
+  # Create a reactive data frame containing ranks that will change based on forward/backward buttons
+  dc_rank <- reactiveValues()
+  dc_rank$rankings <- data.frame(RANKINGS = c(1, 2, 3, 4, 5)) # Stores current rank positions as a column in frame
   
-  
-  #dc_current <- observeEvent(input$dc_forward, {
-   # if (input$dc_forward) {
-    #  rank <- c(tail(dc_10$name, -1), head(dc_10$name, 1)) # shifts values and wraps it around the vector moving right
-    #} else if (input$dc_backward){
-     # rank <- c(tail(dc_10$name, 1), head(dc_10$name, -1)) # shifts values moving left
-    #}
-    #return(rank)
-  #})
-  rank <- reactiveValues()
-  rank$rankings <- data.frame(RANKINGS = c(1, 2, 3, 4, 5))
-  
+  # If user hits the forward button, shifts rankings up with wrap-around
   dc_shift <- observeEvent(input$dc_forward, {
-    rank$rankings$RANKINGS <- c(tail(rank$rankings$RANKINGS, -1), head(rank$rankings$RANKINGS, 1))
+    dc_rank$rankings$RANKINGS <- c(tail(dc_rank$rankings$RANKINGS, -1), head(dc_rank$rankings$RANKINGS, 1))
   })
   
+  # If user hits the back button, shifts rankings downward with wrap-around
   dc_shift <- observeEvent(input$dc_backward, {
-    rank$rankings$RANKINGS <- c(tail(rank$rankings$RANKINGS, 1), head(rank$rankings$RANKINGS, -1))
+    dc_rank$rankings$RANKINGS <- c(tail(dc_rank$rankings$RANKINGS, 1), head(dc_rank$rankings$RANKINGS, -1))
   })
   
-  # Render the name of the top Marvel character based on user input
-  output$marvel_top_name <- renderUI({
-    style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
-    
-    # Tooltip but not really a tooltip because it's stationary
-    wellPanel(
-      style = style,
-      p(HTML(paste0("<b> NAME", "<br/>")))
-    )
-  })
-  
+  # Renders names of top 5 DC appearances based on forward/backward action buttons
   output$dc_top_name <- renderUI({
     data <- dc_10 %>% 
-      filter(RANK == rank$rankings$RANKINGS[1])
+      filter(RANK == dc_rank$rankings$RANKINGS[1]) # match the current dc_rankings first element in column with dc_10 df's RANKING
     name <- data$name
     
     style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
@@ -205,6 +189,54 @@ my.server <- function(input, output) {
       p(HTML(paste0("<b> </b>", data$name,"<br/>")))
     )
   })
+    
+    # Create a reactive data frame containing ranks that will change based on forward/backward buttons
+    m_rank <- reactiveValues()
+    m_rank$rankings <- data.frame(RANKINGS = c(1, 2, 3, 4, 5)) # Stores current rank positions as a column in frame
+    
+    # If user hits the forward button, shifts rankings up with wrap-around
+    m_shift <- observeEvent(input$marvel_forward, {
+      m_rank$rankings$RANKINGS <- c(tail(m_rank$rankings$RANKINGS, -1), head(m_rank$rankings$RANKINGS, 1))
+    })
+    
+    # If user hits the back button, shifts rankings downward with wrap-around
+    m_shift <- observeEvent(input$marvel_backward, {
+      m_rank$rankings$RANKINGS <- c(tail(m_rank$rankings$RANKINGS, 1), head(m_rank$rankings$RANKINGS, -1))
+    })
+    
+    # Render the name of the top Marvel character based on user input
+    output$marvel_top_name <- renderUI({
+      data <- marvel_10 %>% 
+        filter(RANK == m_rank$rankings$RANKINGS[1]) # match the current m_rankings first element in column with marvel_10 df's RANKING
+      name <- data$name
+      
+      style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
+      
+      # Tooltip but not really a tooltip because it's stationary
+      wellPanel(
+        style = style,
+        p(HTML(paste0("<b> </b>", data$name,"<br/>")))
+      )
+    })
+    
+    output$marvel_top_info <- renderUI({
+      data <- marvel_10 %>% 
+        filter(RANK == m_rank$rankings$RANKINGS[1]) # match the current m_rankings first element in column with marvel_10 df's RANKING
+      name <- data$name
+      
+      style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
+      
+      # Tooltip but not really a tooltip because it's stationary
+      wellPanel(
+        style = style,
+        p(HTML(paste0("<b> #", data$RANK, "</b> <br/>",
+                      "<b> Appearances: </b>", data$APPEARANCES,"<br/>",
+                      "<b> Year of First Appearance: </b>", data$YEAR,"<br/>",
+                      "<b> Alignment: </b>", data$ALIGN,"<br/>",
+                      "<b> Gender: </b>", data$GENDER,"<br/>",
+                      "<b> GSM: </b>", data$GSM,"<br/>")))
+      )
+    })
   
   # Source code from https://gitlab.com/snippets/16220
 }
