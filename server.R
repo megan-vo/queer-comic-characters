@@ -25,6 +25,14 @@ gsm.dc <- filter(whole.dc, GSM != "") %>%  mutate(COMPANY = "DC")
 colnames(gsm.marvel)[which(names(gsm.marvel) == "SEX")] <- "GENDER"
 colnames(gsm.dc)[which(names(gsm.dc) == "SEX")] <- "GENDER"
 
+# Extracts the top 5 characters that appeared the most times for DC
+dc_10 <- gsm.dc %>% 
+  filter(APPEARANCES != "") 
+dc_10 <- head(arrange(dc_10, desc(APPEARANCES)), 5) # Arranges it from most appearances and decreases downward
+dc_10 <- select(dc_10, name, ALIGN, GENDER, APPEARANCES, YEAR, GSM) %>% 
+  mutate(RANK = 1:n()) # adds the rank of the character based on number of appearances
+dc_10$ALIGN[dc_10$ALIGN == ""] <- "N/A"
+
 
 # Defines server function
 my.server <- function(input, output) {
@@ -74,6 +82,7 @@ my.server <- function(input, output) {
     histogram <- histogram + geom_count(aes(x = YEAR, y = COUNT),
       size = 5, position = position_dodge(width = 0.1)) +
       theme_bw() + 
+     # theme(plot.background = element_rect(fill = "grey")) +
 
       
       # Keeps the ratio of height:width
@@ -152,35 +161,52 @@ my.server <- function(input, output) {
     return(data)
   })
   
-  # Extracts the top 5 characters that appeared the most times for DC
-  dc_10 <- reactive({
-    data <- gsm.dc %>% 
-      filter(APPEARANCES != "") 
-    data <- head(arrange(data, desc(APPEARANCES)), 5) # Arranges it from most appearances and decreases downward
-    data <- select(data, name, ALIGN, GENDER, APPEARANCES, YEAR, GSM)
-    data$ALIGN[data$ALIGN == ""] <- "N/A"
-    return(data)
+  
+  #dc_current <- observeEvent(input$dc_forward, {
+   # if (input$dc_forward) {
+    #  rank <- c(tail(dc_10$name, -1), head(dc_10$name, 1)) # shifts values and wraps it around the vector moving right
+    #} else if (input$dc_backward){
+     # rank <- c(tail(dc_10$name, 1), head(dc_10$name, -1)) # shifts values moving left
+    #}
+    #return(rank)
+  #})
+  rank <- reactiveValues()
+  rank$rankings <- data.frame(RANKINGS = c(1, 2, 3, 4, 5))
+  
+  dc_shift <- observeEvent(input$dc_forward, {
+    rank$rankings$RANKINGS <- c(tail(rank$rankings$RANKINGS, -1), head(rank$rankings$RANKINGS, 1))
   })
   
-  output$top_marvel <- renderPlot(height = 300, {
-    bar <- ggplot(marvel_10(), aes(x = name, y = APPEARANCES, fill = name)) +
-      geom_bar(stat = "identity") +
-      coord_flip() +
-      theme_minimal() +
-      xlab("NAME") +
-      scale_fill_brewer(palette = "Reds", guide = FALSE) # removes legend
-    return(bar)
+  dc_shift <- observeEvent(input$dc_backward, {
+    rank$rankings$RANKINGS <- c(tail(rank$rankings$RANKINGS, 1), head(rank$rankings$RANKINGS, -1))
   })
   
-  output$top_dc <- renderPlot(height = 300, {
-    bar <- ggplot(dc_10(), aes(x = name, y = APPEARANCES, fill = name)) +
-      geom_bar(stat = "identity") +
-      coord_flip() +
-      theme_minimal() +
-      xlab("NAME") +
-      scale_fill_brewer(palette = "Blues", guide = FALSE) # removes legend
-    return(bar)
+  # Render the name of the top Marvel character based on user input
+  output$marvel_top_name <- renderUI({
+    style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
+    
+    # Tooltip but not really a tooltip because it's stationary
+    wellPanel(
+      style = style,
+      p(HTML(paste0("<b> NAME", "<br/>")))
+    )
   })
+  
+  output$dc_top_name <- renderUI({
+    data <- dc_10 %>% 
+      filter(RANK == rank$rankings$RANKINGS[1])
+    name <- data$name
+    
+    style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
+    
+    # Tooltip but not really a tooltip because it's stationary
+    wellPanel(
+      style = style,
+      p(HTML(paste0("<b> </b>", data$name,"<br/>")))
+    )
+  })
+  
+  # Source code from https://gitlab.com/snippets/16220
 }
 
 
