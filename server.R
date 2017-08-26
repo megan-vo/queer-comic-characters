@@ -43,7 +43,7 @@ marvel_10 <- select(marvel_10, name, ALIGN, GENDER, APPEARANCES, YEAR, GSM) %>%
   mutate(RANK = 1:n()) # adds the rank of the character based on number of appearances
 marvel_10$ALIGN[marvel_10$ALIGN == ""] <- "N/A"
 
-write.csv(marvel_10, "data/marvel_10.csv")
+
 # Defines server function
 my.server <- function(input, output) {
   #################
@@ -238,7 +238,7 @@ my.server <- function(input, output) {
       )
     })
   
-  # Source code from https://gitlab.com/snippets/16220
+  # Source code for tooltip wellPanel from https://gitlab.com/snippets/16220
 }
 
 
