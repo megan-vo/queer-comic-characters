@@ -9,7 +9,7 @@ library(dplyr)
 ########
 # Note #
 ########
-# Source code for tooltip wellPanel from https://gitlab.com/snippets/16220
+# Source code referenced for tooltip wellPanel from https://gitlab.com/snippets/16220
 
 
 ###############
@@ -123,32 +123,6 @@ my.server <- function(input, output) {
                     "<b> Publisher: </b>", point$COMPANY, "<br/>")))
     )
   })
-  
-  ########################
-  # Bar Graph Comparison #
-  ########################
-  
-  # Gives the summary statistics based on what the user is viewing
-  stats_data <- reactive({
-    data <- company()
-    if(length(input$company.data) == 1) {
-      data <- data %>% 
-        filter(input$company.data == COMPANY) %>% 
-        select(COMPANY, input$feature) %>% 
-        group_by(input$feature) %>% 
-        summarize(
-          n = n()
-        )
-    } 
-    
-    return(data)
-  })
-  
-  
-  #############
-  # Pie Chart #
-  #############
-  
 
   ##########
   # Top 10 #
@@ -241,6 +215,11 @@ my.server <- function(input, output) {
     )
   }
 }
+
+############################
+# COMPREHENSIVE COMPARISON #
+############################
+
 
 # Creates server 
 shinyServer(my.server)
