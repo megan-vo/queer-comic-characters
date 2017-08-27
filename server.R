@@ -169,86 +169,78 @@ my.server <- function(input, output) {
   
   # Renders names of top 5 DC appearances based on forward/backward action buttons
   output$dc_top_name <- renderUI({
-    data <- dc_10 %>% 
-      filter(RANK == dc_rank$rankings$RANKINGS[1]) # match the current dc_rankings first element in column with dc_10 df's RANKING
-    name <- data$name
+    profile_name(dc_10, dc_rank$rankings$RANKINGS[1])
+  })
+  
+  # Render the name of the top Marvel character based on user input
+  output$marvel_top_name <- renderUI({
+    profile_name(marvel_10, m_rank$rankings$RANKINGS[1])
+  })
     
+  # Create a reactive data frame containing ranks that will change based on forward/backward buttons
+  m_rank <- reactiveValues()
+  m_rank$rankings <- data.frame(RANKINGS = c(1, 2, 3, 4, 5)) # Stores current rank positions as a column in frame
+  
+  # If user hits the forward button, shifts rankings up with wrap-around
+  m_shift <- observeEvent(input$marvel_forward, {
+    m_rank$rankings$RANKINGS <- c(tail(m_rank$rankings$RANKINGS, -1), head(m_rank$rankings$RANKINGS, 1))
+  })
+  
+  # If user hits the back button, shifts rankings downward with wrap-around
+  m_shift <- observeEvent(input$marvel_backward, {
+    m_rank$rankings$RANKINGS <- c(tail(m_rank$rankings$RANKINGS, 1), head(m_rank$rankings$RANKINGS, -1))
+  })
+  
+  # Output the character profile of current character being viewed
+  output$marvel_top_info <- renderUI({
+    character_profile(marvel_10, m_rank$rankings$RANKINGS[1])
+  })
+  
+  # Output the character profile of current character being viewed
+  output$dc_top_info <- renderUI({
+    character_profile(dc_10, dc_rank$rankings$RANKINGS[1])
+  })
+  
+  # Function that outputs character profile given the data frame of top 5 characters and the
+  # reactive value data frame with column rankings
+  character_profile <- function(data.frame, col.rank) {
+    data <- data.frame %>% 
+      filter(RANK == col.rank)
     style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
+    
+    # Tooltip but not really a tooltip because it's stationary
+    wellPanel(
+      style = style,
+      p(HTML("<img src=", data$PIC, "width=120, height=120> <br/>",
+             paste0("<b> #", data$RANK, "</b> <br/>",
+                    "<b> Appearances: </b>", data$APPEARANCES,"<br/>",
+                    "<b> Year of First Appearance: </b>", data$YEAR,"<br/>",
+                    "<b> Alignment: </b>", data$ALIGN,"<br/>",
+                    "<b> Gender: </b>", data$GENDER,"<br/>",
+                    "<b> GSM: </b>", data$GSM,"<br/>",
+                    "<h6> Artist(s) - ", data$Artist, "</h6>", # Image credits
+                    "<h6> Source: ", data$Source, "</h6>", # Image credits
+                    "<h6> Date of Publishing: ", data$Date, "</h6>", # Image credits
+                    "<h6> <a href=", data$Wikia, ">Image Wikia Link</a>" # Image link
+             )))
+    )
+  }
+  
+  # Given the top 5 company data frame, matches with the reactive value data frame "col.rank" with the 
+  # correct ranking and renders the profile name on a panel
+  profile_name <- function(data.frame, col.rank) {
+    data <- data.frame %>% 
+      filter(RANK == col.rank)
+    style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
+    name <- data$name
     
     # Tooltip but not really a tooltip because it's stationary
     wellPanel(
       style = style,
       p(HTML(paste0("<b> </b>", data$name,"<br/>")))
     )
-  })
-    
-    # Create a reactive data frame containing ranks that will change based on forward/backward buttons
-    m_rank <- reactiveValues()
-    m_rank$rankings <- data.frame(RANKINGS = c(1, 2, 3, 4, 5)) # Stores current rank positions as a column in frame
-    
-    # If user hits the forward button, shifts rankings up with wrap-around
-    m_shift <- observeEvent(input$marvel_forward, {
-      m_rank$rankings$RANKINGS <- c(tail(m_rank$rankings$RANKINGS, -1), head(m_rank$rankings$RANKINGS, 1))
-    })
-    
-    # If user hits the back button, shifts rankings downward with wrap-around
-    m_shift <- observeEvent(input$marvel_backward, {
-      m_rank$rankings$RANKINGS <- c(tail(m_rank$rankings$RANKINGS, 1), head(m_rank$rankings$RANKINGS, -1))
-    })
-    
-    # Render the name of the top Marvel character based on user input
-    output$marvel_top_name <- renderUI({
-      data <- marvel_10 %>% 
-        filter(RANK == m_rank$rankings$RANKINGS[1]) # match the current m_rankings first element in column with marvel_10 df's RANKING
-      name <- data$name
-      
-      style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
-      
-      # Tooltip but not really a tooltip because it's stationary
-      wellPanel(
-        style = style,
-        p(HTML(paste0("<b> </b>", data$name,"<br/>")))
-      )
-    })
-    
-    # Output the character profile of current character being viewed
-    output$marvel_top_info <- renderUI({
-      character_profile(marvel_10, m_rank$rankings$RANKINGS[1])
-    })
-    
-    # Output the character profile of current character being viewed
-    output$dc_top_info <- renderUI({
-      character_profile(dc_10, dc_rank$rankings$RANKINGS[1])
-    })
-    
-    # Function that outputs character profile given the data frame of top 5 characters and the
-    # reactive value data frame with column rankings
-    character_profile <- function(data.frame, col.rank) {
-      data <- data.frame %>% 
-        filter(RANK == col.rank)
-      name <- data$name
-      
-      style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
-      
-      # Tooltip but not really a tooltip because it's stationary
-      wellPanel(
-        style = style,
-        p(HTML("<img src=", data$PIC, "width=120, height=120> <br/>",
-               paste0("<b> #", data$RANK, "</b> <br/>",
-                      "<b> Appearances: </b>", data$APPEARANCES,"<br/>",
-                      "<b> Year of First Appearance: </b>", data$YEAR,"<br/>",
-                      "<b> Alignment: </b>", data$ALIGN,"<br/>",
-                      "<b> Gender: </b>", data$GENDER,"<br/>",
-                      "<b> GSM: </b>", data$GSM,"<br/>",
-                      "<h6> Artist(s) - ", data$Artist, "</h6>", # Image credits
-                      "<h6> Source: ", data$Source, "</h6>", # Image credits
-                      "<h6> Date of Publishing: ", data$Date, "</h6>", # Image credits
-                      "<h6> <a href=", data$Wikia, ">Image Wikia Link</a>" # Image link
-               )))
-      )
-    }
+  }
 }
-
 
 # Creates server 
 shinyServer(my.server)
