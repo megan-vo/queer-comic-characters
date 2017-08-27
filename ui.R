@@ -6,12 +6,17 @@ library(shinythemes)
 library(plotly)
 library(dplyr)
 
-my.ui <- fluidPage(  
+my.ui <- fluidPage(
     #theme = shinytheme("slate"), 
-  
+    fluidRow(align = "center",
+      h2("QUEER COMPANY"),
+      h5(em("Breaking down the composition of queer MARVEL and DC characters from 1940 to 2014"))
+    ),
     # style = "position:relative",
-    plotOutput("histogram", width = "100%", height = 180,
-                hover = hoverOpts(id = "plot_hover", delay = 100, delayType = "debounce")),
+    fluidRow(align = "center",
+             plotOutput("histogram", width = "100%", height = 180,
+                        hover = hoverOpts(id = "plot_hover", delay = 100, delayType = "debounce"))
+    ),
       
     fluidRow(
       column(4, align = "right",
@@ -27,6 +32,22 @@ my.ui <- fluidPage(
                           choices = c("ALIGNMENT (Good/Bad/Neutral)", "GENDER", "GSM (Gender/Sexuality Minority)"), 
                           selected = c("GENDER"))
       )),
+    
+    ##########
+    # TOP 10 #
+    ##########
+      fluidRow(align = "center", div(style = "height:100px;background-color: black;"),
+               h2("THE IN CROWD"),
+               h5(em("The top 5 queer characters from MARVEL and DC by number of appearances"))
+      ),
+      fluidRow(
+        column(6, align = "center",
+              h4("MARVEL Characters")
+        ),
+        column(6, align = "center",
+              h4("DC Characters")
+        )  
+      ),
       fluidRow(
         column(2, align = "right",
                #plotlyOutput("top_marvel", height = 300)
