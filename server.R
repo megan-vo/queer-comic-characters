@@ -3,14 +3,15 @@ library(ggplot2)
 library(shiny)
 library(RColorBrewer)
 library(shinythemes)
-library(plotly)
 library(dplyr)
+library(ggvis)
 
 ########
 # Note #
 ########
 # Source code referenced for tooltip wellPanel from https://gitlab.com/snippets/16220
-
+# The reference for the comprehensive comparison ggvis portion of the project comes from Shiny's
+  # movie explorer example which can be found here: https://github.com/rstudio/shiny-examples/tree/master/051-movie-explorer
 
 ###############
 # Data Frames #
@@ -23,13 +24,13 @@ whole.dc <- read.csv("data/dc-wikia-data.csv", stringsAsFactors = FALSE)
 # Rename Marvel's "Year" to all caps
 colnames(whole.marvel)[13] <- "YEAR"
 
+# Change the column "SEX" to "GENDER"
+colnames(whole.marvel)[which(names(whole.marvel) == "SEX")] <- "GENDER"
+colnames(whole.dc)[which(names(whole.dc) == "SEX")] <- "GENDER"
+
 # Filter for only the GSM characters and add company name
 gsm.marvel <- filter(whole.marvel, GSM != "") %>% mutate(COMPANY = "MARVEL")
 gsm.dc <- filter(whole.dc, GSM != "") %>%  mutate(COMPANY = "DC")
-
-# Change the column "SEX" to "GENDER"
-colnames(gsm.marvel)[which(names(gsm.marvel) == "SEX")] <- "GENDER"
-colnames(gsm.dc)[which(names(gsm.dc) == "SEX")] <- "GENDER"
 
 # Extracts the top 10 characters that appeared the most times for DC and MARVEL
 marvel_10 <- read.csv("data/marvel_10.csv", stringsAsFactors = FALSE)
@@ -214,13 +215,67 @@ my.server <- function(input, output) {
       p(HTML(paste0("<b> </b>", data$name,"<br/>")))
     )
   }
+
+  ############################
+  # COMPREHENSIVE COMPARISON #
+  ############################
+  
+  # Eliminate any rows of data that don't have information about the number of appearances for both dataframes
+  m.appear <- whole.marvel %>% 
+    mutate(COMPANY = "MARVEL")
+  dc.appear <- whole.dc %>% 
+    mutate(COMPANY = "DC")
+  total.appear <- bind_rows(dc.appear, m.appear) %>% 
+    filter(APPEARANCES != "") %>% 
+    filter(GENDER != "") # excludes characters that are considered entities (i.e. not male, female, genderless, or genderfluid)
+
+  # Based on user input, filters data for only relevant characters
+  compare.data <- reactive({
+    appearances <- input$appearances
+    years <- input$years
+    character <- input$character
+    compare <- input$compare
+    
+    data <- total.appear %>% 
+      filter(APPEARANCES >= appearances[1],
+             APPEARANCES <= appearances[2],
+             YEAR >= years[1],
+             YEAR <= years[2]
+             )
+      if(character != "") {
+        data <- data %>% 
+          select(name, contains(character, ignore.case = TRUE))
+      }
+      if(input$compare == "Males to Females") {
+        data <- filter(data, GENDER %in% c("Male Characters", "Female Characters"))
+      } else {
+        # Add a column specifying whether a character is a gender/sexuality minority
+        gsm.data <- data %>% 
+          filter(GSM != "") %>% 
+          mutate(`GSM Status` = "GSM")
+        non.gsm.data <- data %>% 
+          filter(GSM == "") %>% 
+          mutate(`GSM Status` = "Not a GSM")
+       
+        # Bind the data together again
+        data <- bind_rows(gsm.data, non.gsm.data)
+      }
+      return(data)
+  })
+  
+  output$characters_plot <- renderPlot({
+    data <- compare.data()
+    if(input$compare == "Males to Females") {
+      plot <- ggplot(data, aes(color = GENDER)) 
+    } else {
+      plot <- ggplot(data, aes(color = `GSM Status`)) 
+    }
+    plot <- plot +
+      geom_point(aes(x = YEAR, y = APPEARANCES), size = 2, alpha = 0.2, stroke = 2) +
+      theme_gray()
+    return(plot)
+  })
 }
-
-############################
-# COMPREHENSIVE COMPARISON #
-############################
-
-
 # Creates server 
 shinyServer(my.server)
   

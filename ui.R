@@ -1,10 +1,5 @@
-# Add libraries and data sets
-library(ggplot2)
-library(shiny)
-library(RColorBrewer)
+# Add library
 library(shinythemes)
-library(plotly)
-library(dplyr)
 
 my.ui <- fluidPage(
     #theme = shinytheme("slate"), 
@@ -110,7 +105,27 @@ my.ui <- fluidPage(
                repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente 
                delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut 
                perferendis doloribus asperiores repellat.")
+    ),
+    fluidRow(
+      column(9,
+        plotOutput("characters_plot", height = 500, width = "100%")
+      ),
+      column(3,
+             wellPanel(
+               sliderInput("appearances", "# of Appearances", min = 1, max = 4500, value = c(50, 4500)),
+               sliderInput("years", "Year of First Appearance", min = 1939, max = 2014, value = c(1939, 2014)),
+               textInput("character", "Character Name (ex., Akihiro)"),
+               tags$small(paste0(
+                 "Note: Most characters are searchable under their real",
+                 " name and not their alias."
+               ))
+             ),
+             wellPanel(
+               radioButtons("compare", label = "Compare by", choices = c("Males to Females", "Gender or Sexuality Minority Status"),
+                            selected = "Males to Females")
              )
+      )
+    )
 )
 
 # Make UI from my.ui
