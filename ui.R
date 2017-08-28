@@ -1,6 +1,12 @@
 # Add library
 library(shinythemes)
 
+########
+# NOTE #
+########
+# The reference for the comprehensive comparison plot and widgets of the project comes from Shiny's
+  # movie explorer example which can be found here: https://github.com/rstudio/shiny-examples/tree/master/051-movie-explorer
+
 my.ui <- fluidPage(
     #theme = shinytheme("slate"), 
     fluidRow(align = "center",
@@ -108,13 +114,20 @@ my.ui <- fluidPage(
     ),
     fluidRow(
       column(9,
-        plotOutput("characters_plot", height = 500, width = "100%")
+        plotOutput("characters_plot", height = 480, width = "100%",
+                   hover = hoverOpts(id = "compare_hover", delay = 100, delayType = "debounce")),
+        column(5,
+          uiOutput("character_info")     
+        ),
+        column(7, align = "center",
+          uiOutput("percentages")             
+        )
       ),
       column(3,
              wellPanel(
-               sliderInput("appearances", "# of Appearances", min = 1, max = 4500, value = c(50, 4500)),
+               sliderInput("appearances", "# of Appearances", min = 1, max = 4500, value = c(50, 1500)),
                sliderInput("years", "Year of First Appearance", min = 1939, max = 2014, value = c(1939, 2014)),
-               textInput("character", "Character Name (ex., Akihiro)"),
+               textInput("character", "Character name contains (ex., Akihiro)"),
                tags$small(paste0(
                  "Note: Most characters are searchable under their real",
                  " name and not their alias."
@@ -125,6 +138,9 @@ my.ui <- fluidPage(
                             selected = "Males to Females")
              )
       )
+    ),
+    fluidRow(
+      
     )
 )
 

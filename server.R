@@ -10,7 +10,7 @@ library(ggvis)
 # Note #
 ########
 # Source code referenced for tooltip wellPanel from https://gitlab.com/snippets/16220
-# The reference for the comprehensive comparison ggvis portion of the project comes from Shiny's
+# The reference for the comprehensive comparison plot and widgets of the project comes from Shiny's
   # movie explorer example which can be found here: https://github.com/rstudio/shiny-examples/tree/master/051-movie-explorer
 
 ###############
@@ -212,7 +212,7 @@ my.server <- function(input, output) {
     # Tooltip but not really a tooltip because it's stationary
     wellPanel(
       style = style,
-      p(HTML(paste0("<b> </b>", data$name,"<br/>")))
+      p(HTML(paste0(data$name)))
     )
   }
 
@@ -242,10 +242,6 @@ my.server <- function(input, output) {
              YEAR >= years[1],
              YEAR <= years[2]
              )
-      if(character != "") {
-        data <- data %>% 
-          select(name, contains(character, ignore.case = TRUE))
-      }
       if(input$compare == "Males to Females") {
         data <- filter(data, GENDER %in% c("Male Characters", "Female Characters"))
       } else {
@@ -260,9 +256,14 @@ my.server <- function(input, output) {
         # Bind the data together again
         data <- bind_rows(gsm.data, non.gsm.data)
       }
-      return(data)
+      if(character != "") {
+        data <- data %>% 
+          filter(grepl(character, name, ignore.case = TRUE))
+      }
+    return(data)
   })
   
+  # Renders plot comparing all the characters from both DC and Marvel
   output$characters_plot <- renderPlot({
     data <- compare.data()
     if(input$compare == "Males to Females") {
@@ -271,9 +272,69 @@ my.server <- function(input, output) {
       plot <- ggplot(data, aes(color = `GSM Status`)) 
     }
     plot <- plot +
-      geom_point(aes(x = YEAR, y = APPEARANCES), size = 2, alpha = 0.2, stroke = 2) +
-      theme_gray()
+      geom_point(aes(x = YEAR, y = APPEARANCES), size = 2, alpha = 0.25, stroke = 2) +
+      theme_gray() +
+      scale_color_brewer(palette = "Set2")
     return(plot)
+  })
+  
+  # Render the tooltip for hovered over points
+  output$character_info <- renderUI({
+    hover <- input$compare_hover
+    point <- nearPoints(compare.data(), coordinfo = hover, xvar = "YEAR", yvar = 
+                          "APPEARANCES", threshold = 5, maxpoints = 1, addDist = TRUE)
+
+    style <- paste0("background-color: rgba(255, 255, 255, 0.85); ")
+    wellPanel(
+      style = style,
+      h5("Current Character: "),
+      p(HTML(paste0("<b>Name: </b>", point$name,"<br/>",
+                    "<b>Year of First Appearance: </b>", point$YEAR,"<br/>",
+                    "<b> # of Appearances: </b>", point$APPEARANCES,"<br/>",
+                    "<b> Company/Publisher: </b>", point$COMPANY, "<br/>"
+                    )))
+    )
+  })
+  
+  output$percentages <- renderUI({
+    style <- paste0("background-color: rgba(255, 255, 255, 0.85); ")
+    if(input$character == "") { # we only want the general summary stats and not specific characters
+      total <- nrow(compare.data())
+      
+      marvel <- compare.data() %>% 
+        filter(COMPANY == "MARVEL")
+      marvel.total <- nrow(marvel)
+      
+      dc <- compare.data() %>% 
+        filter(COMPANY == "DC")
+      dc.total <- nrow(dc)
+      
+      # Percentages of each
+      if(input$compare == "Males to Females") {
+        total.percent <- nrow(filter(compare.data(), GENDER == "Female Characters")) * 100 / total 
+        marvel.percent <- nrow(filter(marvel, GENDER == "Female Characters")) * 100 / marvel.total 
+        dc.percent <- nrow(filter(dc, GENDER == "Female Characters")) * 100 / dc.total 
+        header <- "female"
+      } else {
+        total.percent <- nrow(filter(compare.data(), `GSM Status` == "GSM")) * 100 / total 
+        marvel.percent <- nrow(filter(marvel, `GSM Status` == "GSM")) * 100 / marvel.total 
+        dc.percent <- nrow(filter(dc, `GSM Status` == "GSM")) * 100 / dc.total
+        header <- "GS minority"
+      }
+      wellPanel(
+        style = style,
+        h4(paste0("Summary Stats")),
+        p(HTML(paste0("<b>Total: </b><br/>", round(total.percent, 2), "% ", header, "<br/>",
+                      "<b>Marvel: </b>", round(marvel.percent, 2),"% ", header, "<br/>",
+                      "<b>DC: </b>", round(dc.percent, 2),"% ", header, "<br/>"
+        )))
+      )
+    } else {
+      wellPanel(
+        style = style,
+        h4(paste0("Summary Stats"))
+      )
+    }
   })
 }
 # Creates server 
