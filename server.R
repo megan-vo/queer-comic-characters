@@ -263,6 +263,25 @@ my.server <- function(input, output) {
     return(data)
   })
   
+  # Resets x and y bounds based on user zoom in/out
+  ranges <- reactiveValues(x = NULL, y = NULL)
+  
+  # Interactivity of plot using double clicks and brushes
+  observeEvent(input$dblclick, {
+    brush <- input$brush
+    
+    # Set the plot's axes and zoom in if the user selects an area and double clicks
+    if(!is.null(brush)) {
+      ranges$x <- c(brush$xmin, brush$xmax)
+      ranges$y <- c(brush$ymin, brush$ymax)
+      
+      # If the user double clicks again, zoom out
+    } else {
+      ranges$x <- NULL
+      ranges$y <- NULL
+    }
+  })
+  
   # Renders plot comparing all the characters from both DC and Marvel
   output$characters_plot <- renderPlot({
     data <- compare.data()
@@ -274,7 +293,9 @@ my.server <- function(input, output) {
     plot <- plot +
       geom_point(aes(x = YEAR, y = APPEARANCES), size = 2, alpha = 0.25, stroke = 2) +
       theme_gray() +
-      scale_color_brewer(palette = "Set2")
+      scale_color_brewer(palette = "Set2") +
+      coord_cartesian(xlim = ranges$x, ylim = ranges$y) # reset axes of plot based on zoom in/out
+    
     return(plot)
   })
   
@@ -296,45 +317,51 @@ my.server <- function(input, output) {
     )
   })
   
+  # Outputs the summary statistics based on user input
   output$percentages <- renderUI({
-    style <- paste0("background-color: rgba(255, 255, 255, 0.85); ")
-    if(input$character == "") { # we only want the general summary stats and not specific characters
-      total <- nrow(compare.data())
-      
-      marvel <- compare.data() %>% 
-        filter(COMPANY == "MARVEL")
-      marvel.total <- nrow(marvel)
-      
-      dc <- compare.data() %>% 
-        filter(COMPANY == "DC")
-      dc.total <- nrow(dc)
-      
-      # Percentages of each
-      if(input$compare == "Males to Females") {
-        total.percent <- nrow(filter(compare.data(), GENDER == "Female Characters")) * 100 / total 
-        marvel.percent <- nrow(filter(marvel, GENDER == "Female Characters")) * 100 / marvel.total 
-        dc.percent <- nrow(filter(dc, GENDER == "Female Characters")) * 100 / dc.total 
-        header <- "female"
-      } else {
-        total.percent <- nrow(filter(compare.data(), `GSM Status` == "GSM")) * 100 / total 
-        marvel.percent <- nrow(filter(marvel, `GSM Status` == "GSM")) * 100 / marvel.total 
-        dc.percent <- nrow(filter(dc, `GSM Status` == "GSM")) * 100 / dc.total
-        header <- "GS minority"
-      }
-      wellPanel(
-        style = style,
-        h4(paste0("Summary Stats")),
-        p(HTML(paste0("<b>Total: </b><br/>", round(total.percent, 2), "% ", header, "<br/>",
-                      "<b>Marvel: </b>", round(marvel.percent, 2),"% ", header, "<br/>",
-                      "<b>DC: </b>", round(dc.percent, 2),"% ", header, "<br/>"
-        )))
-      )
+    total <- nrow(compare.data())
+    
+    marvel <- compare.data() %>% 
+      filter(COMPANY == "MARVEL")
+    marvel.total <- nrow(marvel)
+    
+    dc <- compare.data() %>% 
+      filter(COMPANY == "DC")
+    dc.total <- nrow(dc)
+    
+    # Percentages of each
+    if(input$compare == "Males to Females") {
+      total.percent <- nrow(filter(compare.data(), GENDER == "Female Characters")) * 100 / total 
+      marvel.percent <- nrow(filter(marvel, GENDER == "Female Characters")) * 100 / marvel.total 
+      dc.percent <- nrow(filter(dc, GENDER == "Female Characters")) * 100 / dc.total 
+      header <- "female"
     } else {
-      wellPanel(
-        style = style,
-        h4(paste0("Summary Stats"))
-      )
+      total.percent <- nrow(filter(compare.data(), `GSM Status` == "GSM")) * 100 / total 
+      marvel.percent <- nrow(filter(marvel, `GSM Status` == "GSM")) * 100 / marvel.total 
+      dc.percent <- nrow(filter(dc, `GSM Status` == "GSM")) * 100 / dc.total
+      header <- "GS minority"
     }
+    
+    # If summary stats don't exist for the company, replace 'NaN' with 0%
+    if(total.percent == "NaN") {
+      total.percent = 0
+    } 
+    if (marvel.percent == "NaN") {
+      marvel.percent = 0
+    } 
+    if (dc.percent == "NaN") {
+      dc.percent = 0
+    }
+    
+    style <- paste0("background-color: rgba(255, 255, 255, 0.85); ")
+    wellPanel(
+      style = style,
+      h4(paste0("Summary Stats")),
+      p(HTML(paste0("<b>Total: </b>", round(total.percent, 2), "% ", header, "<br/>",
+                    "<b>Marvel: </b>", round(marvel.percent, 2),"% ", header, "<br/>",
+                    "<b>DC: </b>", round(dc.percent, 2),"% ", header, "<br/>"
+      )))
+    )
   })
 }
 # Creates server 

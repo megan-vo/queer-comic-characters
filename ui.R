@@ -115,11 +115,15 @@ my.ui <- fluidPage(
     fluidRow(
       column(9,
         plotOutput("characters_plot", height = 480, width = "100%",
-                   hover = hoverOpts(id = "compare_hover", delay = 100, delayType = "debounce")),
-        column(5,
+                   hover = hoverOpts(id = "compare_hover", delay = 100, delayType = "debounce"),
+                   dblclick = "dblclick",
+                   brush = brushOpts(
+                     id = "brush",
+                     resetOnNew = TRUE)),
+        column(6,
           uiOutput("character_info")     
         ),
-        column(7, align = "center",
+        column(6, align = "center",
           uiOutput("percentages")             
         )
       ),
