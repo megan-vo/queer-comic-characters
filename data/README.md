@@ -12,7 +12,7 @@ Variable | Definition
 `name` | The name of the character
 `ALIGN` | The alignment of the character based on whether they are categorized as Good, Bad, or Neutral
 `GENDER` | The character's gender
-`APPEARANCES` | The character's number of comic book appearances since their first appearance and up until September 2, 2014 
+`APPEARANCES` | The character's number of comic book appearances since their first appearance up until September 2, 2014 
 `YEAR` | The year of the character's first comic book appearance
 `GSM` | The gender or sexuality minority identification of the character (i.e. "Pansexual characters, homosexual characters, etc."). 
 `RANK` | The popularity rank of a character by number of appearances 
