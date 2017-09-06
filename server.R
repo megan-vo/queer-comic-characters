@@ -9,10 +9,10 @@ library(ggvis)
 ########
 # Note #
 ########
-# Source code referenced for tooltip wellPanel from https://gitlab.com/snippets/16220
+# Source code referenced for tooltip wellPanel from Pawel's https://gitlab.com/snippets/16220 
 # The reference for the comprehensive comparison plot and widgets of the project comes from Shiny's
-  # movie explorer example which can be found here: https://github.com/rstudio/shiny-examples/tree/master/051-movie-explorer
-# Zoom brush/double click code referenced from: https://gallery.shinyapps.io/105-plot-interaction-zoom/
+  # movie explorer example which can be found here: https://github.com/rstudio/shiny-examples/tree/master/051-movie-explorer by RStudio
+# Zoom brush/double click code referenced from: https://gallery.shinyapps.io/105-plot-interaction-zoom/ by RStudio
 
 ###############
 # Data Frames #

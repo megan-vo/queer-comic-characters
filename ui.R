@@ -5,7 +5,7 @@ library(shinythemes)
 # NOTE #
 ########
 # The reference for the comprehensive comparison plot and widgets of the project comes from Shiny's
-  # movie explorer example which can be found here: https://github.com/rstudio/shiny-examples/tree/master/051-movie-explorer
+  # movie explorer example which can be found here: https://github.com/rstudio/shiny-examples/tree/master/051-movie-explorer from RStudio
 
 my.ui <- fluidPage(
     theme = shinytheme("simplex"), 
@@ -60,7 +60,7 @@ my.ui <- fluidPage(
         together by the category chosen at the bottom right of the graph. You may view the graph according to publishing
         company as well, which can be changed via the checkboxes on the bottom left of the graph. More information about
         a character can be viewed by hovering over the dot to be examined. For optimal viewing, I recommend
-        expanding your browsing window to avoid overcrowding of dots.")
+        expanding your browsing window to avoid overcrowding of dots (if you haven't already).")
     ),
     
     # Creates the dot plot with hover options
@@ -69,6 +69,8 @@ my.ui <- fluidPage(
              plotOutput("histogram", width = "100%", height = 180,
                         hover = hoverOpts(id = "plot_hover", delay = 100, delayType = "debounce"))
     ),
+    
+    p(strong("Analysis: "), "", textOutput("comp.analysis") ),
       
     fluidRow(
       column(4, align = "right",
