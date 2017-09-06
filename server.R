@@ -12,6 +12,7 @@ library(ggvis)
 # Source code referenced for tooltip wellPanel from https://gitlab.com/snippets/16220
 # The reference for the comprehensive comparison plot and widgets of the project comes from Shiny's
   # movie explorer example which can be found here: https://github.com/rstudio/shiny-examples/tree/master/051-movie-explorer
+# Zoom brush/double click code referenced from: https://gallery.shinyapps.io/105-plot-interaction-zoom/
 
 ###############
 # Data Frames #
@@ -295,7 +296,7 @@ my.server <- function(input, output) {
       theme_gray() +
       scale_color_brewer(palette = "Set2") +
       coord_cartesian(xlim = ranges$x, ylim = ranges$y) # reset axes of plot based on zoom in/out
-    
+
     return(plot)
   })
   
