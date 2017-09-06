@@ -3,7 +3,7 @@
 To access the README.md file of the original data scraped by FiveThirtyEight, please go [here](https://github.com/fivethirtyeight/data/blob/master/comic-characters/README.md). This README file covers the
 marvel-wikia-data and dc-wikia-data csv files. 
 
-*Note* I did change the 'SEX' category to the more accurate term of 'GENDER'. I also changed the sexuality of two characters based on research which can be read more about in the [project]().
+*Note:* I did change the 'SEX' category to the more accurate term of 'GENDER'. I also changed the sexuality of two characters based on research which can be read more about in the [project]().
 
 I also added two csv files containing the top 5 Marvel and DC queer characters by number of appearances. The columns of data for those two csv files are listed below:
 
