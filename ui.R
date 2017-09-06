@@ -10,10 +10,14 @@ library(shinythemes)
 my.ui <- fluidPage(
     theme = shinytheme("simplex"), 
     
+#########
+# INTRO #
+#########
     # Heading for the beginning of the project
     fluidRow(align = "center",
      h2(strong("ANOTHER KIND OF LEAGUE")),
      h5("Exploring the queer composition of Marvel and DC leagues through data"),
+     h6(em("by Megan Vo Bui, September 2017")),
      h4(strong("Introduction"))
     ),
     fluidRow(
@@ -29,7 +33,7 @@ my.ui <- fluidPage(
         tags$a(href="http://www.huffingtonpost.com/entry/diversity-in-comics-whats-been-done-and-what-needs_us_5933b75fe4b0649fff211a07", "diverse writers"),
         " as well. Even with these steps to make the comic realm more inclusive, there is still more work to be done."),
      p("This project explores the break down of queer character inclusion from 1939 and 2014. It must be noted that the
-       data comes from the same data scraped by FiveThirtyEight in August 2014, which means it also comes from both Marvel and DC
+       data come from the same data scraped by FiveThirtyEight in August 2014, which means it also comes from both Marvel and DC
        wikia databases. Since these databases are edited by fans, information might not be entirely accurate. Because of this
        caveat, this project is meant to be a fun, quick glimpse into the queer Marvel and DC realm. Moreover, the number of appearances
        and characters have both increased since 2014, which is not reflected here. You can access the data ",
@@ -46,6 +50,9 @@ my.ui <- fluidPage(
        personal research project, and the artists, source, date, and image link are all attributed when shown.")
     ),
     
+############
+# DOT PLOT #
+############
     # Beginning of PART 1 of project with dot plot
     fluidRow(align = "center",
       h3(strong("PART 1: ALL IN GOOD COMPANY")),
@@ -69,8 +76,6 @@ my.ui <- fluidPage(
              plotOutput("histogram", width = "100%", height = 180,
                         hover = hoverOpts(id = "plot_hover", delay = 100, delayType = "debounce"))
     ),
-    
-    p(strong("Analysis: "), "", textOutput("comp.analysis") ),
       
     fluidRow(
       column(4, align = "right",
@@ -87,18 +92,22 @@ my.ui <- fluidPage(
                           selected = c("GENDER"))
       )
     ),
-    fluidRow(align = "center",
-             # Placeholder text 
-               p("Analysis")
+    fluidRow(
+      p(strong("A closer look: "), textOutput("comp.analysis") )
     ),
     
-    ##########
-    # TOP 10 #
-    ##########
+##########
+# TOP 10 #
+##########
       fluidRow(align = "center", 
-               h2("Are You In or Are You Out?"),
-               h5(em("The top 5 queer characters from MARVEL and DC by number of appearances")),
-               p("introduction")
+               h3(strong("PART 2: THE IN AND OUT")),
+               h5(em("The top 5 queer characters from MARVEL and DC by number of appearances"))
+      ),
+      fluidRow(
+        p(strong("Before You Get Started: "), "The characters below are ranked by number of appearances since their first year of appearance.
+          Data for these number of appearances were scraped on September 2, 2014.
+          Each character has an image that references the artists, date, source (volume, cover, etc.), and wikia link of that image. Use the
+          left and right arrows to cycle through the character rankings and to view a different character profile.")
       ),
       fluidRow(
         column(6, align = "center",
@@ -110,7 +119,6 @@ my.ui <- fluidPage(
       ),
       fluidRow(
         column(2, align = "right",
-               #plotlyOutput("top_marvel", height = 300)
                actionButton('marvel_backward', width = 20, label = "",
                             icon = icon("angle-left", lib = "font-awesome"), class = "btn-primary")
         ),
@@ -123,7 +131,6 @@ my.ui <- fluidPage(
                             icon = icon("angle-right", lib = "font-awesome"), class = "btn-primary")
         ),
         column(2, align = "right",
-               #plotlyOutput("top_marvel", height = 300)
                actionButton('dc_backward', width = 20, label = "",
                             icon = icon("angle-left", lib = "font-awesome"), class = "btn-primary")
         ),
@@ -144,15 +151,51 @@ my.ui <- fluidPage(
                uiOutput("dc_top_info")       
         )
       ),
-    fluidRow(align = "center",
-             
-             # Placeholder text
-             p("Analysis")
+    fluidRow(
+      p(strong("A closer look: "), "Overall, Marvel's top 5 GSM characters seem to have been
+        introduced earlier on average and appear more often than DC's top 5 GSM characters. The average
+        year of first appearance for the top 5 Marvel characters is roughly 1972, with the earliest year
+        of introduction being 1949 (Loki) and the latest year for the top 5 being 1991 (Deadpool). This contrasts
+        with DC's average introduction year (1981), with the Pied Piper appearing the earliest (1959) and The Question
+        appearing the latest (1992). In fact, when this data were scraped, Marvel's #5 character profile, Mystique, 
+        appeared the same number of times as DC's #1 character, John Constantine. Perhaps Marvel's GSM characters
+        tend to be more popular or are cast into more prolific roles. The average number of appearances for Marvel's
+        top 5 was about 567, which is 322 higher than DC's average of roughly 245."),
+
+      p("Alignment of DC's top 5 characters tends to lean towards 'Good', while Marvel's characters show a little 
+        more moral ambiguity with Hercules being the only 'Good' aligned character and the rest either 'Neutral' or 'Bad'.
+        Marvel also showcases more bisexual characters in their top 5 whereas DC mainly has homosexual characters. 
+        Moreover, Marvel's top 5 includes pansexual and genderfluid characters. This is similar to the findings in Part 1
+        where Marvel showed a more diverse GSM community than DC (whose characters were either bisexual or homosexual).")
     ),
-    fluidRow(align = "center", div(style = "height:75px;background-color: black;"),
-      h2("Drawing Comparisons"),
-      h5("Subtitle"),
-      p("Introduction")
+    
+###############
+# COMPARISONS #
+###############
+    fluidRow(align = "center", 
+      h3(strong("PART 3: ALL TOGETHER")),
+      h5(em("Comparing the compositions of gender and sexuality minorities and majorities throughout 1939-2014"))
+    ),
+    fluidRow(
+      p(strong("Behind the Data: "), "The data include all characters scraped from the databases, with the exception of
+        characters considered as 'entities' (not male, female, genderless, or genderfluid) which were excluded for the purposes
+        of simplifying comparisons. The two comparisons drawn were between male/female characters and 
+        GSM and non-GSM (heterosexual or cis-gender) characters to look at inclusion of these minorities over time."),
+      p(strong("What Am I Viewing? "), " This visualization shows the inclusivity of female and GSM characters over time.
+        The x-axis represents the first year of appearance and the y-axis represents the number of appearances each character
+        has as of September 2014. Use the slider inputs to the right to examine a certain range of years or appearances. You may
+        also type in a character's name to view a particular character in the search bar. This tool can also be used to view characters
+        with particular substrings in their names. For example, typing 'M' will automatically result in showing the plots for characters
+        with names containing a 'M' irrespective of case. You may also switch color encodings to compare male/female distribution
+        or GSM/non-GSM distribution."),
+      p("You may also ", strong("hover "), "over dots to view more information about a character. To examine crowded areas
+        of the plot, you can also zoom by ", strong("brushing over the desired area and double clicking"), " on the selected area. To zoom
+        out, you can ", strong("double click"), " on the graph, which will reset to the original viewing dimensions.")
+    ),
+    fluidRow(align = "center",
+      column(9,
+             h5(strong("Gender and Sexuality Minority Ratios Over Time"))       
+      )
     ),
     fluidRow(
       column(9,
