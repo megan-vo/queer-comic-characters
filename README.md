@@ -10,4 +10,4 @@ The project is broken down into three parts:
 
 Any referenced code used in this project is linked and attributed in the ui.R and server.R files.
 
-Finally, the project and its references can be accessed [here]().
+Finally, the project and its references can be accessed [here](https://megan-vo.shinyapps.io/queer-comic-characters/).
