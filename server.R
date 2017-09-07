@@ -49,6 +49,12 @@ my.server <- function(input, output) {
     # Combine the two dataframes as a default
     data <- bind_rows(gsm.marvel, gsm.dc) %>% filter(YEAR != "") 
     
+    # Replace male/female with man/woman and get rid of 'characters' ending 
+    data$GENDER <- replace(data$GENDER, data$GENDER =="Female Characters", " Woman")
+    data$GENDER <- replace(data$GENDER, data$GENDER =="Genderfluid Characters", "Genderfluid")
+    data$GENDER <- replace(data$GENDER, data$GENDER =="Genderless Characters", "Genderless")
+    data$GENDER <- replace(data$GENDER, data$GENDER =="Male Characters", "Man")
+    
     # Arranges data so that color groups stay together
     if(input$feature == "ALIGNMENT (Good/Bad/Neutral)") {
       data <- arrange(data, ALIGN)
@@ -124,6 +130,65 @@ my.server <- function(input, output) {
                     "<b> GSM: </b>", point$GSM, "<br/>",
                     "<b> Publisher: </b>", point$COMPANY, "<br/>")))
     )
+  })
+  
+  # Generate analysis of dot plot based on data user is viewing 
+  output$comp.analysis <- renderText({
+    total <- nrow(company())
+    analysis <- paste0("You are currently viewing ",  total, " GSM characters in ")
+    man <- 3
+    gender <- "are also 2 genderfluid characters"
+    gsm <- 3 # for homosexual vector number in df
+    
+    # Changes text output based on company being viewed
+    if(length(input$company.data) == 1 & input$company.data == "DC") {
+      companies <- "DC"
+      gender <- "is also 1 genderless character"
+      gsm <- 2 # for homosexual vector number in df
+    } else if(length(input$company.data) == 1) {
+      companies <- "Marvel"
+    } else {
+      companies <- "DC and Marvel"
+      man <- 4
+      gender <- "are also 2 genderfluid and 1 genderless characters"
+    }
+    analysis <- paste0(analysis, companies, ". ")
+    
+    # Changes text output based on feature being viewed
+    if(input$feature == "GENDER") {
+      categories <- company() %>% 
+        group_by(GENDER) %>% 
+        summarize(n = n())
+      analysis <- paste0(analysis, "Of the total number of characters being viewed, ", 
+                         categories$n[1], " are women and ", categories$n[man], " are men. There  ",
+                         gender, ". It might be interesting to note that for both Marvel and DC, the earliest
+                         GSM characters were primarily male. Marvel introduced their first queer female and genderfluid characters
+                         in 1948 and 1949 respectively, while DC's first female GSM appeared in 1985. Even so, the next non-male queer character
+                         after 1949 appeared in 1972, 23 years after. From the 1940s up until 1974, GSM character introductions were few and
+                         far between. It wasn't until 1975 that queer characters were being introduced at least once a year (with the exception of 1999); however,
+                         it must be noted that this observation takes into account both DC and Marvel data.")
+    } else if(input$feature == "GSM (Gender/Sexuality Minority)") {
+      categories <- company() %>% 
+        group_by(GSM) %>% 
+        summarize(n = n())
+      analysis <- paste0(analysis, "Of the total number of characters being viewed, ", categories$n[1], " are bisexual, while ",
+                         categories$n[gsm], " are homosexual. All genderfluid (2), pansexual (2), and transgender (2) characters
+                         are from the Marvel Universe. That would also indicate that DC's queer representation has been mainly limited
+                         to homosexual and bisexual characters (although that could have changed since 2014). Regardless, the majority
+                         of GSM characters in both universes are homosexual. It must be noted that in this category, Loki (who is genderfluid and bisexual)
+                         is categorized as 'bisexual' here and 'genderfluid' in the Gender category, so that both his gender and
+                         sexuality are represented somehow on this plot.")
+    } else {
+      categories <- company() %>% 
+        group_by(ALIGN) %>% 
+        summarize(n = n())
+      analysis <- paste0(analysis, "Of the total number of characters being viewed, ", categories$n[1], " are considered 'bad', while ",
+                         categories$n[2], " are 'good' and ", categories$n[4], " are 'neutral'. The remaining ", categories$n[3], " do not
+                         have an alignment.")
+    }
+    # Function to put together values and categories given the dataframe (df)
+    
+    return(analysis)
   })
 
   ##########
@@ -245,6 +310,7 @@ my.server <- function(input, output) {
              )
       if(input$compare == "Males to Females") {
         data <- filter(data, GENDER %in% c("Male Characters", "Female Characters"))
+        colnames(data)[which(names(data) == "GENDER")] <- "SEX"
       } else {
         # Add a column specifying whether a character is a gender/sexuality minority
         gsm.data <- data %>% 
@@ -287,7 +353,7 @@ my.server <- function(input, output) {
   output$characters_plot <- renderPlot({
     data <- compare.data()
     if(input$compare == "Males to Females") {
-      plot <- ggplot(data, aes(color = GENDER)) 
+      plot <- ggplot(data, aes(color = SEX)) 
     } else {
       plot <- ggplot(data, aes(color = `GSM Status`)) 
     }
@@ -332,9 +398,9 @@ my.server <- function(input, output) {
     
     # Percentages of each
     if(input$compare == "Males to Females") {
-      total.percent <- nrow(filter(compare.data(), GENDER == "Female Characters")) * 100 / total 
-      marvel.percent <- nrow(filter(marvel, GENDER == "Female Characters")) * 100 / marvel.total 
-      dc.percent <- nrow(filter(dc, GENDER == "Female Characters")) * 100 / dc.total 
+      total.percent <- nrow(filter(compare.data(), SEX == "Female Characters")) * 100 / total 
+      marvel.percent <- nrow(filter(marvel, SEX == "Female Characters")) * 100 / marvel.total 
+      dc.percent <- nrow(filter(dc, SEX == "Female Characters")) * 100 / dc.total 
       header <- "female"
     } else {
       total.percent <- nrow(filter(compare.data(), `GSM Status` == "GSM")) * 100 / total 
