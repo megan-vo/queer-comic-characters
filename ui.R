@@ -94,7 +94,7 @@ my.ui <- fluidPage(
     ),
     fluidRow(
       p(strong("Breakdown: "), textOutput("comp.analysis")),
-      p("Looking at the overall graph, the distribution seems to be skewed left toward earlier years. It might be a point
+      p(strong("Overall Distribution: "), "Looking at the overall graph, the distribution (regardless of color codings) seems to be skewed left toward earlier years. It might be a point
         of interest that the year with the most GSM characters introduced overall is 2003, with both Marvel and DC
         producing the most (or tied for the most) number of queer characters that year compared to other years. Marvel seems to have
         a more pronounced skew than DC, and has consequently introduced more queer characters from 2000 onwards. Although it may be inferred

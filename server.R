@@ -33,6 +33,10 @@ colnames(whole.dc)[which(names(whole.dc) == "SEX")] <- "GENDER"
 gsm.marvel <- filter(whole.marvel, GSM != "") %>% mutate(COMPANY = "MARVEL")
 gsm.dc <- filter(whole.dc, GSM != "") %>%  mutate(COMPANY = "DC")
 
+# Replace homosexual with gay/lesbian
+gsm.marvel$GSM <- replace(gsm.marvel$GSM, gsm.marvel$GSM == "Homosexual Characters", "Gay/Lesbian Characters")
+gsm.dc$GSM <- replace(gsm.dc$GSM, gsm.dc$GSM == "Homosexual Characters", "Gay/Lesbian Characters")
+
 # Extracts the top 10 characters that appeared the most times for DC and MARVEL
 marvel_10 <- read.csv("data/marvel_10.csv", stringsAsFactors = FALSE)
 dc_10 <- read.csv("data/dc_10.csv", stringsAsFactors = FALSE)
@@ -50,7 +54,7 @@ my.server <- function(input, output) {
     data <- bind_rows(gsm.marvel, gsm.dc) %>% filter(YEAR != "") 
     
     # Replace male/female with man/woman and get rid of 'characters' ending 
-    data$GENDER <- replace(data$GENDER, data$GENDER =="Female Characters", " Woman")
+    data$GENDER <- replace(data$GENDER, data$GENDER =="Female Characters", "Woman")
     data$GENDER <- replace(data$GENDER, data$GENDER =="Genderfluid Characters", "Genderfluid")
     data$GENDER <- replace(data$GENDER, data$GENDER =="Genderless Characters", "Genderless")
     data$GENDER <- replace(data$GENDER, data$GENDER =="Male Characters", "Man")
@@ -103,7 +107,7 @@ my.server <- function(input, output) {
       
       # Prevents the graph scale from getting smaller
       ylim(1, 13) +
-      scale_color_brewer(palette = "Pastel1") 
+      scale_color_brewer(palette = "Pastel2") 
     
     # If they want to distinguish between companies, changes shape
     return(histogram)
@@ -136,20 +140,20 @@ my.server <- function(input, output) {
   output$comp.analysis <- renderText({
     total <- nrow(company())
     analysis <- paste0("You are currently viewing ",  total, " GSM characters in ")
-    man <- 3
+    woman <- 3
+    man <- 2
     gender <- "are also 2 genderfluid characters"
-    gsm <- 3 # for homosexual vector number in df
-    
+
     # Changes text output based on company being viewed
     if(length(input$company.data) == 1 & input$company.data == "DC") {
       companies <- "DC"
       gender <- "is also 1 genderless character"
-      gsm <- 2 # for homosexual vector number in df
     } else if(length(input$company.data) == 1) {
       companies <- "Marvel"
     } else {
       companies <- "DC and Marvel"
-      man <- 4
+      woman <- 4
+      man <- 3
       gender <- "are also 2 genderfluid and 1 genderless characters"
     }
     analysis <- paste0(analysis, companies, ". ")
@@ -160,7 +164,7 @@ my.server <- function(input, output) {
         group_by(GENDER) %>% 
         summarize(n = n())
       analysis <- paste0(analysis, "Of the total number of characters being viewed, ", 
-                         categories$n[1], " are women and ", categories$n[man], " are men. There  ",
+                         categories$n[woman], " are women and ", categories$n[man], " are men. There  ",
                          gender, ". It might be interesting to note that for both Marvel and DC, the earliest
                          GSM characters were primarily male. Marvel introduced their first queer female and genderfluid characters
                          in 1948 and 1949 respectively, while DC's first female GSM appeared in 1985. Even so, the next non-male queer character
@@ -172,9 +176,9 @@ my.server <- function(input, output) {
         group_by(GSM) %>% 
         summarize(n = n())
       analysis <- paste0(analysis, "Of the total number of characters being viewed, ", categories$n[1], " are bisexual, while ",
-                         categories$n[gsm], " are homosexual. All genderfluid (2), pansexual (2), and transgender (2) characters
+                         categories$n[2], " are gay or lesbian. All genderfluid (2), pansexual (2), and transgender (2) characters
                          are from the Marvel Universe. That would also indicate that DC's queer representation has been mainly limited
-                         to homosexual and bisexual characters (although that could have changed since 2014). Regardless, the majority
+                         to gay/lesbian and bisexual characters (although that could have changed since 2014). Regardless, the majority
                          of GSM characters in both universes are homosexual. It must be noted that in this category, Loki (who is genderfluid and bisexual)
                          is categorized as 'bisexual' here and 'genderfluid' in the Gender category, so that both his gender and
                          sexuality are represented somehow on this plot.")
@@ -182,12 +186,21 @@ my.server <- function(input, output) {
       categories <- company() %>% 
         group_by(ALIGN) %>% 
         summarize(n = n())
+      
+      # Number of "good characters" compared to all of the characters in that universe in percentages
+      marvel.align <- filter(whole.marvel, ALIGN == "Good Characters") %>% 
+        nrow()
+      marvel.align <- marvel.align * 100 / nrow(whole.marvel)
+      dc.align <- filter(whole.dc, ALIGN == "Good Characters") %>% 
+        nrow()
+      dc.align <- dc.align * 100 / nrow(whole.dc)
+      
       analysis <- paste0(analysis, "Of the total number of characters being viewed, ", categories$n[1], " are considered 'bad', while ",
                          categories$n[2], " are 'good' and ", categories$n[4], " are 'neutral'. The remaining ", categories$n[3], " do not
-                         have an alignment.")
+                         have a given alignment. This calculates to about ", round(categories$n[2] * 100 / total, 2), "% of GSM characters that are
+                         good. In contrast, roughly ", round(dc.align, 2), "% of all DC characters are considered 'good' in their universe and ",
+                         round(marvel.align, 2), "% of all Marvel characters are 'good' in their universe as well.")
     }
-    # Function to put together values and categories given the dataframe (df)
-    
     return(analysis)
   })
 
