@@ -4,7 +4,6 @@ library(shiny)
 library(RColorBrewer)
 library(shinythemes)
 library(dplyr)
-library(ggvis)
 
 ########
 # Note #
@@ -179,7 +178,7 @@ my.server <- function(input, output) {
                          categories$n[2], " are gay or lesbian. All genderfluid (2), pansexual (2), and transgender (2) characters
                          are from the Marvel Universe. That would also indicate that DC's queer representation has been mainly limited
                          to gay/lesbian and bisexual characters (although that could have changed since 2014). Regardless, the majority
-                         of GSM characters in both universes are homosexual. It must be noted that in this category, Loki (who is genderfluid and bisexual)
+                         of GSM characters in both universes are gay or lesbian. It must be noted that in this category, Loki (who is genderfluid and bisexual)
                          is categorized as 'bisexual' here and 'genderfluid' in the Gender category, so that both his gender and
                          sexuality are represented somehow on this plot.")
     } else {
@@ -321,25 +320,32 @@ my.server <- function(input, output) {
              YEAR >= years[1],
              YEAR <= years[2]
              )
-      if(input$compare == "Males to Females") {
-        data <- filter(data, GENDER %in% c("Male Characters", "Female Characters"))
-        colnames(data)[which(names(data) == "GENDER")] <- "SEX"
-      } else {
-        # Add a column specifying whether a character is a gender/sexuality minority
-        gsm.data <- data %>% 
-          filter(GSM != "") %>% 
-          mutate(`GSM Status` = "GSM")
-        non.gsm.data <- data %>% 
-          filter(GSM == "") %>% 
-          mutate(`GSM Status` = "Not a GSM")
-       
-        # Bind the data together again
-        data <- bind_rows(gsm.data, non.gsm.data)
+    
+    # Filter based on radio button input
+    if(input$compare == "Males to Females") {
+      data <- filter(data, GENDER %in% c("Male Characters", "Female Characters"))
+      colnames(data)[which(names(data) == "GENDER")] <- "SEX"
+    } else {
+      # Add a column specifying whether a character is a gender/sexuality minority
+      gsm.data <- data %>% 
+        filter(GSM != "") %>% 
+        mutate(`GSM Status` = "GSM")
+      non.gsm.data <- data %>% 
+        filter(GSM == "") %>% 
+        mutate(`GSM Status` = "Not a GSM")
+     
+      # Bind the data together again
+      data <- bind_rows(gsm.data, non.gsm.data)
+    }
+    
+    # Filter based on search input
+    if(character != "") {
+      char <- data %>% 
+        filter(grepl(character, name, ignore.case = TRUE)) # find character names with given substring
+      if(nrow(char) != 0) { # if the df has 0 rows in it, display the original graph (otherwise show the changed graph)
+        data <- char
       }
-      if(character != "") {
-        data <- data %>% 
-          filter(grepl(character, name, ignore.case = TRUE))
-      }
+    }
     return(data)
   })
   
@@ -423,15 +429,11 @@ my.server <- function(input, output) {
     }
     
     # If summary stats don't exist for the company, replace 'NaN' with 0%
-    if(total.percent == "NaN") {
+    if(total.percent == "NaN" | marvel.percent == "NaN" | dc.percent == "NaN") {
       total.percent = 0
-    } 
-    if (marvel.percent == "NaN") {
       marvel.percent = 0
-    } 
-    if (dc.percent == "NaN") {
       dc.percent = 0
-    }
+    } 
     
     style <- paste0("background-color: rgba(255, 255, 255, 0.85); ")
     wellPanel(
