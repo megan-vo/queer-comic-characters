@@ -165,18 +165,18 @@ my.server <- function(input, output) {
       analysis <- paste0(analysis, "Of the total number of characters being viewed, ", 
                          categories$n[woman], " are women and ", categories$n[man], " are men. There  ",
                          gender, ". It might be interesting to note that for both Marvel and DC, the earliest
-                         GSM characters were primarily male. Marvel introduced their first queer female and genderfluid characters
-                         in 1948 and 1949 respectively, while DC's first female GSM appeared in 1985. Even so, the next non-male queer character
-                         after 1949 appeared in 1972, 23 years after. From the 1940s up until 1974, GSM character introductions were few and
-                         far between. It wasn't until 1975 that queer characters were being introduced at least once a year (with the exception of 1999); however,
-                         it must be noted that this observation takes into account both DC and Marvel data.")
+                         GSM characters were primarily male. Marvel's oldest queer female and genderfluid characters were introduced 
+                         in 1948 and 1949 respectively (but not necessarily as queer), while DC's first female GSM appeared in 1985. From the 1940s up until 1974, GSM character introductions were few and
+                         far between. It wasn't until the late 1980s that queer characters were being included more often. Perhaps not surprisingly, gender non-conforming characters have
+                         gained less visibility than characters who identify as women or men. So while diversity in sexuality has obtained more traction throughout the years, diversity in 
+                         non-binary gender representation has been slower to catch up.")
     } else if(input$feature == "GSM (Gender/Sexuality Minority)") {
       categories <- company() %>% 
         group_by(GSM) %>% 
         summarize(n = n())
       analysis <- paste0(analysis, "Of the total number of characters being viewed, ", categories$n[1], " are bisexual, while ",
-                         categories$n[2], " are gay or lesbian. All genderfluid (2), pansexual (2), and transgender (2) characters
-                         are from the Marvel Universe. That would also indicate that DC's queer representation has been mainly limited
+                         categories$n[2], " are gay or lesbian. Most of the genderfluid (2), pansexual (2), and transgender (3) characters
+                         are from the Marvel Universe, with the exception of Kate Godwin who is part of the DC Universe. That would also indicate that DC's queer representation has been mainly limited
                          to gay/lesbian and bisexual characters (although that could have changed since 2014). Regardless, the majority
                          of GSM characters in both universes are gay or lesbian. It must be noted that in this category, Loki (who is genderfluid and bisexual)
                          is categorized as 'bisexual' here and 'genderfluid' in the Gender category, so that both his gender and
@@ -197,8 +197,9 @@ my.server <- function(input, output) {
       analysis <- paste0(analysis, "Of the total number of characters being viewed, ", categories$n[1], " are considered 'bad', while ",
                          categories$n[2], " are 'good' and ", categories$n[4], " are 'neutral'. The remaining ", categories$n[3], " do not
                          have a given alignment. This calculates to about ", round(categories$n[2] * 100 / total, 2), "% of GSM characters that are
-                         good. In contrast, roughly ", round(dc.align, 2), "% of all DC characters are considered 'good' in their universe and ",
-                         round(marvel.align, 2), "% of all Marvel characters are 'good' in their universe as well.")
+                         good. In contrast, roughly ", round(dc.align, 2), "% of all DC characters and ", round(marvel.align, 2), "% of all Marvel characters 
+                         are considered 'good' in their respective universes. This suggests that queer characters in both universes tend to be cast
+                         as good at a higher rate than non-queer characters.")
     }
     return(analysis)
   })
@@ -429,9 +430,13 @@ my.server <- function(input, output) {
     }
     
     # If summary stats don't exist for the company, replace 'NaN' with 0%
-    if(total.percent == "NaN" | marvel.percent == "NaN" | dc.percent == "NaN") {
+    if (total.percent == "NaN") { # three if statements for each possible case
       total.percent = 0
+    } 
+    if (marvel.percent == "NaN") {
       marvel.percent = 0
+    } 
+    if (dc.percent == "NaN"){
       dc.percent = 0
     } 
     
