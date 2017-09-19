@@ -164,9 +164,7 @@ my.server <- function(input, output) {
         summarize(n = n())
       analysis <- paste0(analysis, "Of the total number of characters being viewed, ", 
                          categories$n[woman], " are women and ", categories$n[man], " are men. There  ",
-                         gender, ". It might be interesting to note that for both Marvel and DC, the earliest
-                         GSM characters were primarily male. Marvel's oldest queer female and genderfluid characters were introduced 
-                         in 1948 and 1949 respectively (but not necessarily as queer), while DC's first female GSM appeared in 1985. From the 1940s up until 1974, GSM character introductions were few and
+                         gender, ". From the 1940s up until 1974, GSM character introductions were few and
                          far between. It wasn't until the late 1980s that queer characters were being included more often. Perhaps not surprisingly, gender non-conforming characters have
                          gained less visibility than characters who identify as women or men. So while diversity in sexuality has obtained more traction throughout the years, diversity in 
                          non-binary gender representation has been slower to catch up.")
@@ -255,6 +253,15 @@ my.server <- function(input, output) {
     character_profile(dc_10, dc_rank$rankings$RANKINGS[1])
   })
   
+  # Outputs the artist information 
+  output$dc_artists <- renderUI({
+    artist(dc_10, dc_rank$rankings$RANKINGS[1])
+  })
+  
+  output$marvel_artists<- renderUI({
+    artist(marvel_10, m_rank$rankings$RANKINGS[1])
+  })
+  
   # Function that outputs character profile given the data frame of top 5 characters and the
   # reactive value data frame with column rankings
   character_profile <- function(data.frame, col.rank) {
@@ -271,13 +278,27 @@ my.server <- function(input, output) {
                     "<b> Year of First Appearance: </b>", data$YEAR,"<br/>",
                     "<b> Alignment: </b>", data$ALIGN,"<br/>",
                     "<b> Gender: </b>", data$GENDER,"<br/>",
-                    "<b> GSM: </b>", data$GSM,"<br/>",
-                    "<h6> Artist(s) - ", data$Artist, "</h6>", # Image credits
+                    "<b> GSM: </b>", data$GSM,"<br/><br/>",
+                    "<b> Trivia: </b>", data$Trivia, "<br/>")
+             ))
+    )
+  }
+  
+  # Function that outputs image references and citations given the data frame and character ranking
+  artist <- function(data.frame, col.rank) {
+    data <- data.frame %>% 
+      filter(RANK == col.rank)
+    style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
+    
+    # Tooltip but not really a tooltip because it's stationary
+    wellPanel(
+      style = style,
+      p(HTML(
+             paste0("<h6> Artist(s) - ", data$Artist, "</h6>", # Image credits
                     "<h6> Source: ", data$Source, "</h6>", # Image credits
                     "<h6> Date of Publishing: ", data$Date, "</h6>", # Image credits
                     "<h6> <a href=", data$Wikia, ">Image Wikia Link</a>" # Image link
-             )))
-    )
+             ))))
   }
   
   # Given the top 5 company data frame, matches with the reactive value data frame "col.rank" with the 

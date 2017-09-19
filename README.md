@@ -7,6 +7,7 @@ The project is broken down into three parts:
 1) Examination of the composition of queer characters by gender and sexuality minority status, gender, alignment, and publishing company throughout the years.
 2) A quick look into the top 5 queer character profiles from both DC and Marvel by number of appearances.
 3) Comparisons between gender (primarily male/female) and GSM status of all Marvel and DC characters.
+4) A discussion of ways others can research and take this project topic further
 
 Any referenced code used in this project is linked and attributed in the ui.R and server.R files.
 
