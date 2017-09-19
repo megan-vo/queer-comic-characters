@@ -323,6 +323,7 @@ my.server <- function(input, output) {
   ############################
   
   # Eliminate any rows of data that don't have information about the number of appearances for both dataframes
+  # Also add company name as a separate column
   m.appear <- whole.marvel %>% 
     mutate(COMPANY = "MARVEL")
   dc.appear <- whole.dc %>% 
