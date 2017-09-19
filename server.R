@@ -47,7 +47,8 @@ my.server <- function(input, output) {
   # GSM HISTOGRAM #
   #################
   
-  # Creates reactive function that takes in user input and changes the data to be viewed
+  # Creates reactive function that takes in user input and changes the data to be viewed. Returns data frame
+  # containing desired data
   company <- reactive({
     # Combine the two dataframes as a default
     data <- bind_rows(gsm.marvel, gsm.dc) %>% filter(YEAR != "") 
@@ -95,8 +96,6 @@ my.server <- function(input, output) {
     histogram <- histogram + geom_count(aes(x = YEAR, y = COUNT),
       size = 5, position = position_dodge(width = 0.1)) +
       theme_bw() + 
-     # theme(plot.background = element_rect(fill = "grey")) +
-
       
       # Keeps the ratio of height:width
       # coord_fixed(1.2) * coord_fixed() for some reason does not work well with nearPoints()
@@ -108,7 +107,6 @@ my.server <- function(input, output) {
       ylim(1, 13) +
       scale_color_brewer(palette = "Pastel2") 
     
-    # If they want to distinguish between companies, changes shape
     return(histogram)
   })
   
@@ -122,7 +120,7 @@ my.server <- function(input, output) {
                           "COUNT", threshold = 5, maxpoints = 1, addDist = TRUE)
     style <- paste0("background-color: rgba(255, 255, 255, 0.85); ")
 
-    # Tooltip but not really a tooltip because it's stationary
+    # Renders a panel that displays information of character based on hovered points
     wellPanel(
       style = style,
       p(HTML(paste0("<b> Name: </b>", point$name, "<br/>",
@@ -135,23 +133,23 @@ my.server <- function(input, output) {
     )
   })
   
-  # Generate analysis of dot plot based on data user is viewing 
+  # Generate and return analysis of dot plot based on data user is viewing 
   output$comp.analysis <- renderText({
-    total <- nrow(company())
+    total <- nrow(company()) # the total number of characters being displayed on the plot
     analysis <- paste0("You are currently viewing ",  total, " GSM characters in ")
-    woman <- 3
-    man <- 2
-    gender <- "are also 2 genderfluid characters"
-
+    woman <- 3 # default position of "woman" column in vector of columns
+    man <- 2 # default position of "men" column in vector of columns
+    
     # Changes text output based on company being viewed
     if(length(input$company.data) == 1 & input$company.data == "DC") {
       companies <- "DC"
       gender <- "is also 1 genderless character"
     } else if(length(input$company.data) == 1) {
       companies <- "Marvel"
+      gender <- "are also 2 genderfluid characters" 
     } else {
       companies <- "DC and Marvel"
-      woman <- 4
+      woman <- 4 # Since another category is added, position of column name shifts down one in vector
       man <- 3
       gender <- "are also 2 genderfluid and 1 genderless characters"
     }
@@ -180,17 +178,19 @@ my.server <- function(input, output) {
                          is categorized as 'bisexual' here and 'genderfluid' in the Gender category, so that both his gender and
                          sexuality are represented somehow on this plot.")
     } else {
+      
+      # Group and count the number of characters by their alignment
       categories <- company() %>% 
         group_by(ALIGN) %>% 
         summarize(n = n())
       
-      # Number of "good characters" compared to all of the characters in that universe in percentages
+      # Calculates number of "good characters" compared to all of the characters in that universe in percentages
       marvel.align <- filter(whole.marvel, ALIGN == "Good Characters") %>% 
         nrow()
-      marvel.align <- marvel.align * 100 / nrow(whole.marvel)
+      marvel.align <- marvel.align * 100 / nrow(whole.marvel) # percentage of characters in Marvel that are Good
       dc.align <- filter(whole.dc, ALIGN == "Good Characters") %>% 
         nrow()
-      dc.align <- dc.align * 100 / nrow(whole.dc)
+      dc.align <- dc.align * 100 / nrow(whole.dc) # percentage of characters in DC that are Good
       
       analysis <- paste0(analysis, "Of the total number of characters being viewed, ", categories$n[1], " are considered 'bad', while ",
                          categories$n[2], " are 'good' and ", categories$n[4], " are 'neutral'. The remaining ", categories$n[3], " do not
@@ -219,16 +219,6 @@ my.server <- function(input, output) {
     dc_rank$rankings$RANKINGS <- c(tail(dc_rank$rankings$RANKINGS, 1), head(dc_rank$rankings$RANKINGS, -1))
   })
   
-  # Renders names of top 5 DC appearances based on forward/backward action buttons
-  output$dc_top_name <- renderUI({
-    profile_name(dc_10, dc_rank$rankings$RANKINGS[1])
-  })
-  
-  # Render the name of the top Marvel character based on user input
-  output$marvel_top_name <- renderUI({
-    profile_name(marvel_10, m_rank$rankings$RANKINGS[1])
-  })
-    
   # Create a reactive data frame containing ranks that will change based on forward/backward buttons
   m_rank <- reactiveValues()
   m_rank$rankings <- data.frame(RANKINGS = c(1, 2, 3, 4, 5)) # Stores current rank positions as a column in frame
@@ -243,6 +233,16 @@ my.server <- function(input, output) {
     m_rank$rankings$RANKINGS <- c(tail(m_rank$rankings$RANKINGS, 1), head(m_rank$rankings$RANKINGS, -1))
   })
   
+  # Renders names of top 5 DC appearances based on forward/backward action buttons
+  output$dc_top_name <- renderUI({
+    profile_name(dc_10, dc_rank$rankings$RANKINGS[1])
+  })
+  
+  # Render the name of the top Marvel character based on user input
+  output$marvel_top_name <- renderUI({
+    profile_name(marvel_10, m_rank$rankings$RANKINGS[1])
+  })
+  
   # Output the character profile of current character being viewed
   output$marvel_top_info <- renderUI({
     character_profile(marvel_10, m_rank$rankings$RANKINGS[1])
@@ -255,11 +255,12 @@ my.server <- function(input, output) {
   
   # Outputs the artist information 
   output$dc_artists <- renderUI({
-    artist(dc_10, dc_rank$rankings$RANKINGS[1])
+    artist(dc_10, dc_rank$rankings$RANKINGS[1], "DC Comics, Inc.")
   })
   
+  # Outputs artist information
   output$marvel_artists<- renderUI({
-    artist(marvel_10, m_rank$rankings$RANKINGS[1])
+    artist(marvel_10, m_rank$rankings$RANKINGS[1], "Marvel Comics")
   })
   
   # Function that outputs character profile given the data frame of top 5 characters and the
@@ -269,7 +270,7 @@ my.server <- function(input, output) {
       filter(RANK == col.rank)
     style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
     
-    # Tooltip but not really a tooltip because it's stationary
+    # Renders a panel containing information about characters
     wellPanel(
       style = style,
       p(HTML("<img src=", data$PIC, "width=120, height=120> <br/>",
@@ -284,19 +285,20 @@ my.server <- function(input, output) {
     )
   }
   
-  # Function that outputs image references and citations given the data frame and character ranking
-  artist <- function(data.frame, col.rank) {
+  # Function that outputs image references and citations given the data frame, character ranking, and publisher string
+  artist <- function(data.frame, col.rank, publisher) {
     data <- data.frame %>% 
       filter(RANK == col.rank)
     style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
     
-    # Tooltip but not really a tooltip because it's stationary
+    # Renders a panel containing information about image
     wellPanel(
       style = style,
       p(HTML(
              paste0("<h6> Artist(s) - ", data$Artist, "</h6>", # Image credits
                     "<h6> Source: ", data$Source, "</h6>", # Image credits
                     "<h6> Date of Publishing: ", data$Date, "</h6>", # Image credits
+                    "<h6> Publisher: ", publisher, "</h6>",
                     "<h6> <a href=", data$Wikia, ">Image Wikia Link</a>" # Image link
              ))))
   }
@@ -309,7 +311,7 @@ my.server <- function(input, output) {
     style <- paste0("background-color: rgba(255, 255, 255, 0.85); padding: 5px;")
     name <- data$name
     
-    # Tooltip but not really a tooltip because it's stationary
+    # Renders a panel containing character name
     wellPanel(
       style = style,
       p(HTML(paste0(data$name)))
@@ -336,6 +338,7 @@ my.server <- function(input, output) {
     character <- input$character
     compare <- input$compare
     
+    # Filter based on slider input for year range and appearance range
     data <- total.appear %>% 
       filter(APPEARANCES >= appearances[1],
              APPEARANCES <= appearances[2],
@@ -427,17 +430,17 @@ my.server <- function(input, output) {
   
   # Outputs the summary statistics based on user input
   output$percentages <- renderUI({
-    total <- nrow(compare.data())
+    total <- nrow(compare.data()) # total number of rows
     
     marvel <- compare.data() %>% 
       filter(COMPANY == "MARVEL")
-    marvel.total <- nrow(marvel)
+    marvel.total <- nrow(marvel) # total number of Marvel characters
     
     dc <- compare.data() %>% 
       filter(COMPANY == "DC")
-    dc.total <- nrow(dc)
+    dc.total <- nrow(dc) # total number of DC characters
     
-    # Percentages of each
+    # Calculates the percentages of each ratio
     if(input$compare == "Males to Females") {
       total.percent <- nrow(filter(compare.data(), SEX == "Female Characters")) * 100 / total 
       marvel.percent <- nrow(filter(marvel, SEX == "Female Characters")) * 100 / marvel.total 

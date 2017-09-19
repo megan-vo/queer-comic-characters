@@ -17,7 +17,7 @@ my.ui <- fluidPage(
   fluidRow(align = "center",
     column(10, offset = 2,
            h2(strong("ANOTHER KIND OF LEAGUE")),
-           h5("Exploring the queer composition of Marvel and DC leagues through data"),
+           h5("Exploring the queer and gender composition of Marvel and DC leagues through data"),
            h6(em("by Megan Vo Bui, September 2017"))     
     )
   ),
@@ -30,26 +30,35 @@ my.ui <- fluidPage(
       ),
       fluidRow(
         column(width = 10, offset = 1,
-               p(strong("Purpose and Data: "), "The purpose of this project is to examine the patterns of queer character inclusion in both Marvel and DC
-               comics. Comics historically have been created, written, and aimed at primarily",
-                 tags$a(href="https://fivethirtyeight.com/features/women-in-comic-books/", " white men"), "according to research
-                 done by FiveThirtyEight's Walt Hickey using data scraped from ",
-                 tags$a(href="http://marvel.wikia.com/wiki/Marvel_Database", "Marvel wikia's database"), "and ",
-                 tags$a(href="http://dc.wikia.com/wiki/DC_Comics_Database", "DC wikia's database.")),
-               p("The good news is that diversifying efforts for DC and Marvel comics have been on the uprise. 
-               Characters like Kamala Khan (the new Ms. Marvel), and America Chavez (Miss America) have started to grace
-                 Marvel covers, and these characters have been coupled with more ",
+               p(strong("Batwoman, Deadpool, Loki, Mystique."), " All complex characters in their own right. We could dissect, categorize,
+                 and analyze their personas in many different ways. However, this project
+                 is going to zoom in on one particular aspect these characters share: they're queer. And they're not the only ones that are."),
+               p("The main purpose of this project is to examine the patterns of gender and sexuality minority inclusion in both Marvel and DC
+               comics. Comics historically have been created, written, and aimed at primarily white men according to",
+                 tags$a(href="https://fivethirtyeight.com/features/women-in-comic-books/", " research"),  
+                 " done by FiveThirtyEight's Walt Hickey (2014). But by looking quantitatively into characters
+                 that diverge from the norm, we can catch a glimpse at what other stories are being told throughout the years."),
+               p("The good news is that diversifying efforts for DC and Marvel comics have been generally on the uprise. 
+                 Famous superheroes are being recasted as different ethnicities, while some characters are being reintroduced with more nuanced
+                 sexualities (i.e. ", tags$a(href="http://www.comicosity.com/exclusive-interview-greg-rucka-on-queer-narrative-and-wonder-woman/", "Wonder Woman"), 
+                 ") (Santori 2016). Furthermore, these characters have been coupled with more ",
                  tags$a(href="http://www.huffingtonpost.com/entry/diversity-in-comics-whats-been-done-and-what-needs_us_5933b75fe4b0649fff211a07", "diverse writers"),
-                 " as well. Even with these steps to make the comic realm more inclusive, there is still more work to be done."),
-              p("")
+                 " as well (Dern 2017). Even with these steps to make the comic realm more inclusive, there is still more work to be done."),
+              p("So whether you are queer, interested in diversity in comics, or enjoy looking at data for fun like me (or a combination of the three),
+                this project will hopefully shed a few insights and lead to even more curiosity and exploration.")
         )
       )
     ),
     
     tabPanel("Before You Start",
-             p(em("Before you dive into the interesting content, let's lay out some foundations of the project.")),
+             fluidRow(align = "center",
+                      h4(strong("Before You Start")),
+                      h5(em("Prior to diving into the interesting content, let's lay out some foundations of the project."))
+             ),
              p(strong("Data: "), "You can access the data ",
-               tags$a(href="https://github.com/fivethirtyeight/data/tree/master/comic-characters", " on GitHub.")),
+               tags$a(href="https://github.com/fivethirtyeight/data/tree/master/comic-characters", " on GitHub."),
+             "Here are the links to ", tags$a(href="http://marvel.wikia.com/wiki/Marvel_Database", "Marvel wikia's database"), "and ",
+             tags$a(href="http://dc.wikia.com/wiki/DC_Comics_Database", "DC wikia's database ")), 
              
              p(strong("Caveats: "), "This project explores the break down of queer character inclusion from 1940 and 2014. It must be noted that the
                data come from the same data scraped by FiveThirtyEight in August 2014, which means it also comes from both Marvel and DC
@@ -70,7 +79,7 @@ my.ui <- fluidPage(
              p("Furthermore, I had to omit some top 5 characters from the pool of queer characters (i.e. Hercules and Black Widow) due to either a lack of hard evidence
                or because their sexuality was only addressed in an alternate universe. Deadpool's sexuality
                was changed to 'pansexual' as stated by Tim Miller (director of 'Deadpool') in an", 
-               tags$a(href="http://collider.com/deadpool-ryan-reynolds-tim-miller-interview/", " interview.")),
+               tags$a(href="http://collider.com/deadpool-ryan-reynolds-tim-miller-interview/", " interview."), " DC's Kate Godwin was also added as a GSM character."),
              p(strong("Images and Content: "), "Lastly, I'd like to acknowledge that in working on this project, text-based content used from the databases mentioned above is
                allowed under the Creative Commons License, which you can read more about ",
                tags$a(href="http://marvel.wikia.com/wiki/Marvel_Database:Copyrights", " here."),
@@ -85,7 +94,7 @@ my.ui <- fluidPage(
     tabPanel("Part 1: Who's in the League?",
       fluidRow(align = "center",
         h3(strong("PART 1: WHO'S IN THE LEAGUE?")),
-        h5(em("Breaking down the composition of queer MARVEL and DC characters from 1940 to 2014"))
+        h5(em("Breaking down the composition of queer and gender non-conforming MARVEL and DC characters from 1940 to 2014"))
       ),
       fluidRow(
         column(width = 10, offset = 1,
@@ -224,7 +233,7 @@ my.ui <- fluidPage(
         column(width = 10, offset = 1,
                p(strong("Behind the Data: "), "The data include all characters scraped from the databases, with the exception of
                  characters considered as 'entities' (not male, female, genderless, or genderfluid) which were excluded for the purposes
-                 of simplifying comparisons. The two comparisons drawn were between male/female characters and 
+                 of simplifying comparisons. Note that some characters are missing due to lack of appearance data. The two comparisons drawn were between male/female characters and 
                  GSM and non-GSM (heterosexual or cisgender) characters to look at inclusion of minorities over time."),
                p(strong("What Am I Viewing? "), " This visualization shows the inclusivity of female and GSM characters over time.
                  The x-axis represents the first year of appearance and the y-axis represents the the number of character appearances as of September 2014. Use the slider inputs to the right to examine a certain range of years or appearances. You may
@@ -307,16 +316,20 @@ my.ui <- fluidPage(
                  p(strong("How Can You Take This Further? "), "As with most projects, there are a lot of areas that this project
                    leaves unexplored. Since this project is not definitive, there is a lot of room to look into."),
                  p("Perhaps one of the biggest areas that this project does not fully address is the exact time/year that the character
-                   is introduced as queer. Because the data only contain the year the character was first created and many characters do not come out
+                   is introduced as queer. Because the data primarily contain the year the character was first created and many characters do not come out
                    until much later (ex. Catwoman and Iceman), it might be worth looking into the trends and progression of the years characters begin to", strong(em(" identify ")),
-                   "as queer. That may paint a more accurate depiction of gender and sexuality minority inclusion in DC and Marvel comics."),
+                   "as queer. That may paint a more accurate depiction of gender and sexuality minority inclusion in DC and Marvel comics. As with most data sets, this data are
+                   also imperfect and not always 100% consistent."),
                  p("Another place for improvement is that the data are about 3 years old. A lot of new characters have been introduced since then and
                    existing characters have appeared more and have been recasted too. A good question to consider is how we have progressed since 2014 (if at all)."),
                  p("Moreover, since this project only covers characters from one DC and one Marvel universe, it might be interesting to look into other universes
                    and perhaps compare how queer characters are being portrayed. Some characters identify differently in other universes."),
-                 p("Finally, this project only looks at the nature of queer and gender representation in Marvel and DC comics quantitatively. To understand fully
+                 p("As mentioned before, this project only looks at the nature of queer and gender representation in Marvel and DC comics quantitatively. To understand fully
                    how these groups are being represented, we also must look at their depictions and appearances at a qualitative level (which means actually ", 
                    strong(em("reading ")), "the comics for the way characters are portrayed)."),
+                 p("Finally, because this project was meant to be a fun, surface introduction, there is much more room for a more in-depth, academic
+                   analysis and research into the topics explored here. I would also like to acknowledge that I do not know the Marvel and DC realms as extensively as many others do.
+                   I encourage those that do know more to go further. Starting with one of the issues mentioned above is a good step forward."),
                  p(strong("Possible Topics of Exploration: "),
                    tags$ul(
                      tags$li("Looking at the demographics of the creators and writers of comic books and lead characters"),
@@ -325,18 +338,46 @@ my.ui <- fluidPage(
                      tags$li("Examining the differences of how these minority characters are being portrayed in the books vs. film/TV adaptations"),
                      tags$li("Branching out and researching into other comic publishers. This could also be extended to how
                              queer characters are being represented internationally. How do they compare?"),
+                     tags$li("Looking into how characters identify themselves. Because gender and sexuality is complicated, it might be hard to discern
+                             what characters identify as (ex. as a trans woman or as a woman). This would require a qualitative analysis as well"),
                      tags$li("Analyzing the depiction of queer characters of color")
                    )
                  ),
-                 p(strong("Some Fun Links to Get You Started: ")
-                   
-                 )
+                 p(strong("Some Articles to Get You Thinking: ")),
+                 fluidRow(
+                   column(6,
+                        p(tags$ul(
+                            tags$li(tags$a(href="https://www.wired.com/2015/07/diversity-in-comics/", "Racial Diversity in Comics and Comic Creators")),
+                            tags$li(tags$a(href="https://www.dailydot.com/parsec/marvel-lgbt-characters-black-writers-controversy/", "Marvel, Gender, Race, and LGBTQ Issues")),
+                            tags$li(tags$a(href="https://www.nytimes.com/2015/12/24/fashion/coming-out-as-gay-superheroes.html", "NYTimes Gay Superheroes")))
+                          
+                        )   
+                   ),
+                   column(6,
+                        p(tags$ul(
+                            tags$li(tags$a(href="https://www.theatlantic.com/entertainment/archive/2013/10/why-we-worry-about-dc-comicss-gay-characters/310076/", "DC and Gay Representation")),
+                            tags$li(tags$a(href="http://www.nationalgeographic.com/magazine/2017/06/explore-minorities-in-comics/", "Exploring Minorities in Comics (With Brief Character Spotlights)")))
+                        )   
+                   )
+                )
           )
       )
     ),
     tabPanel("References",
       fluidRow(align = "center",
-               h4(strong("References"))
+               h4(strong("References")),
+               column(10, offset = 1,
+               h5(em("Special thanks to Jaelien Pinheiro for editing and guiding me through the complexities of
+                     gender, sexuality and related terminology for this project. She is currently studying to become a Doctor of Psychology 
+                     in Clinical Psychology (Psy.D.) at The Wright Institute.")))
+      ),
+      fluidRow(
+        column(6,
+               img(src='References1.png', width = "100%", height = 600)
+        ),
+        column(6,
+               img(src='References2.png', width = "100%", height = 600)       
+        )
       )
     )
   )
