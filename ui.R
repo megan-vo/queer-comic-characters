@@ -368,7 +368,7 @@ my.ui <- fluidPage(
                h4(strong("References")),
                column(10, offset = 1,
                h5(em("Special thanks to Jaelien Pinheiro for editing and guiding me through the complexities of
-                     gender, sexuality and related terminology for this project. She is currently studying to become a Doctor of Psychology 
+                     human sexuality and its terminology for this project. She is currently studying to become a Doctor of Psychology 
                      in Clinical Psychology (Psy.D.) at The Wright Institute.")))
       ),
       fluidRow(
