@@ -318,7 +318,7 @@ my.ui <- fluidPage(
                  p("Perhaps one of the biggest areas that this project does not fully address is the exact time/year that the character
                    is introduced as queer. Because the data primarily contain the year the character was first created and many characters do not come out
                    until much later (ex. Catwoman and Iceman), it might be worth looking into the trends and progression of the years characters begin to", strong(em(" identify ")),
-                   "as queer. That may paint a more accurate depiction of gender and sexuality minority inclusion in DC and Marvel comics. As with most data sets, this data are
+                   "as queer. That may paint a more accurate depiction of gender and sexuality minority inclusion in DC and Marvel comics. As with most data sets, these data are
                    also imperfect and not always 100% consistent."),
                  p("Another place for improvement is that the data are about 3 years old. A lot of new characters have been introduced since then and
                    existing characters have appeared more and have been recasted too. A good question to consider is how we have progressed since 2014 (if at all)."),
