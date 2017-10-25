@@ -273,7 +273,7 @@ my.server <- function(input, output) {
     # Renders a panel containing information about characters
     wellPanel(
       style = style,
-      p(HTML("<img src=", data$PIC, "width=120, height=120> <br/>",
+      p(HTML(#"<img src=", data$PIC, "width=120, height=120> <br/>",
              paste0("<b> #", data$RANK, "</b> <br/>",
                     "<b> Appearances: </b>", data$APPEARANCES,"<br/>",
                     "<b> Year of First Appearance: </b>", data$YEAR,"<br/>",
